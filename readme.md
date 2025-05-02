@@ -174,23 +174,54 @@ The preprocessing pipeline is split into two sequential scripts, mirroring the s
 
 **Classification Target:** `is_severe_outcome` (binary: 1 = severe, 0 = non-severe).
 
-**Class Balance:** The dataset presents a moderate imbalance — 26.6% severe (28,683) vs. 73.4% non-severe (79,317). Raw accuracy is therefore a misleading metric; models will be evaluated using **AUC-ROC** and **weighted F1-score**. Class imbalance is addressed by setting `class_weight='balanced'` on estimators that support it.
+**Class Balance:** The dataset presents a moderate imbalance — 26.6% severe (28,683) vs. 73.4% non-severe (79,317). Raw accuracy is therefore a misleading metric; models are evaluated using **AUC-ROC** and **weighted F1-score**. Class imbalance is handled natively by gradient boosting (scale_pos_weight / auto_class_weights) and class_weight='balanced' for linear models.
 
-**Classification:** Logistic Regression, Random Forest, and Support Vector Machines (SVM).
-
-Each algorithm requires a different preprocessing strategy, enforced through `sklearn.Pipeline` to prevent data leakage:
+Five classifiers were trained, all via `sklearn.Pipeline` to prevent leakage:
 
 | Algorithm | Imputation | Scaling | Notes |
 | :--- | :---: | :---: | :--- |
-| **Random Forest** | Median | — | Handles non-linearity natively; robust to NaN after imputation |
-| **Logistic Regression** | Median | StandardScaler | Linear decision boundary; sensitive to feature scale |
-| **SVM (RBF kernel)** | Median | StandardScaler | Most sensitive to scale; can capture non-linear interactions |
+| **Logistic Regression** | Median | StandardScaler | Linear baseline |
+| **Random Forest** | Median | — | 500 trees, class_weight='balanced' |
+| **XGBoost (GPU)** | Median | — | scale_pos_weight, tree_method=hist |
+| **CatBoost (GPU)** | Median | — | auto_class_weights='Balanced' |
+| **Voting Ensemble** | — | — | Soft vote: RF + XGBoost + CatBoost |
 
+Threshold tuning on the validation set maximises F1-severe (default 0.5 is suboptimal for imbalanced data). Optuna Bayesian HPO (TPE sampler, 100 XGBoost + 50 CatBoost trials with GPU early stopping) was applied to the two best models.
 
+### 4. Results
 
-##  Expected Outcomes
+| Model | AUC-ROC | F1-severe | Recall-severe |
+| :--- | ---: | ---: | ---: |
+| Logistic Regression | 0.7519 | 0.533 | 0.641 |
+| Random Forest | 0.7916 | 0.570 | 0.644 |
+| XGBoost (GPU) | 0.7949 | 0.574 | 0.685 |
+| CatBoost (GPU) | 0.7936 | 0.574 | 0.641 |
+| Voting Ensemble | 0.7962 | 0.575 | 0.648 |
+| **Tuned Ensemble (Optuna)** | **0.8054** | **0.586** | **0.651** |
 
-* **DDI Ranking:** A prioritized list of the most dangerous drug-drug interactions found in recent data.
-* **Model Benchmarking:** A comparative analysis showing which predictive models best handle sparse medical event data.
-* **Automated Pipeline:** A Python-based framework for converting raw medical JSON into actionable clinical insights.
+**Key finding:** Removing `rxn_hospitalisation` (a MedDRA code that directly encoded the target) dropped AUC from 0.862 → 0.796, confirming real data leakage. Optuna tuning on the clean feature set recovered performance to **AUC 0.8054**.
+
+### 5. Running Task B
+
+```bash
+# 1. Ingest FAERS ZIP → consolidated_data.parquet
+python taskB/1B_dataIngestion.py "taskB/9 json files - no tocar.zip"
+
+# 2. Feature engineering → taskB/task_b_features.parquet (82 features)
+python taskB/2B_preprocessing.py
+
+# 3. Train 5 classifiers + threshold tuning
+python taskB/3B_modeling.py
+
+# 4. Optuna hyperparameter tuning (~20 min on GPU)
+python taskB/4B_optuna_tuning.py
+```
+
+Alternatively, open `taskB/TaskB_notebook_EXECUTED.ipynb` to see all results pre-rendered, or `pipeline_notebook.ipynb` at the project root for the full end-to-end pipeline (Task A + Task B).
+
+---
+
+## Final Presentation
+
+`finalPresentation/drug_interactions.html` — Reveal.js, 14 slides, open in any browser.
 
