@@ -38,7 +38,7 @@ def consolidate_fda_data(folder_path):
     print("-" * 30)
     print(f"Total Consolidated Records: {total_records}")
     
-    # Requirement Check [cite: 307, 315]
+    # Assignment Requirement Check 
     if total_records >= 100000:
         print("Status: SUCCESS - Dataset meets the >100k requirement.")
     else:
