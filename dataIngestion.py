@@ -14,7 +14,7 @@ def consolidate_fda_data(folder_path):
     all_reports = []
     total_records = 0
     
-    print(f"Starting data consolidation...")
+    print(f"Starting data ingestion...")
     print(f"Found {len(json_files)} files.")
     
     for file in json_files:
@@ -57,7 +57,7 @@ def consolidate_fda_data(folder_path):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python dataConsolidation.py <path_to_folder>")
+        print("To run the script,specify the folder with the json files! -> Type: python dataIngestion.py <path_to_folder_with_json_files>")
     else:
         path = sys.argv[1]
         consolidate_fda_data(path)

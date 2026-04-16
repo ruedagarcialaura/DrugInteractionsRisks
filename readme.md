@@ -23,7 +23,7 @@ By analyzing quarterly data from 2025, this research aims to uncover hidden patt
 * **Source:** [openFDA / FAERS API](https://open.fda.gov/apis/drug/event/)
 * **Sample Size:** 108,000 records corresponding to 9 JSON files from 2025.
 * **Key Features:** 
-    * **Demographics:** Patient age, sex.
+    * **Demographics:** Patient age and sex.
     * **Medication:** Medicinal product name, active substance.
     * **Clinical:** Reported reactions and seriousness indicator.
 
