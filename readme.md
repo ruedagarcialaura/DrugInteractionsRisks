@@ -35,9 +35,13 @@ This plot illustrates the distribution of adverse event outcomes and the gender 
 <img src="plots/seriousness_and_sex.png" width="600" alt="Seriousness and Sex">
 
 #### 2. Severity Indicators
-A detailed breakdown of the specific seriousness criteria reported (Hospitalization, Death, etc.).
 
-<img src="plots/severity_indicators_pie.png" width="400" alt="Severity Indicators" style="display: block; margin: 0 auto;">
+<div style="display: flex; align-items: center; gap: 20px;">
+    <div style="flex: 1;">A detailed breakdown of the specific seriousness criteria reported (Hospitalization, Death, etc.).</div>
+    <div style="flex: 0 0 auto;">
+        <img src="plots/severity_indicators_pie.png" width="400" alt="Severity Indicators">
+    </div>
+</div>
 
 #### 3. Drug Frequency Analysis
 Comparison between reported Brand Names and their corresponding Active Substances.
