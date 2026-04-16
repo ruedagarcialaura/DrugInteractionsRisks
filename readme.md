@@ -7,31 +7,53 @@
 ##  Introduction
 Adverse Drug Events (ADEs) are a leading cause of hospitalization and mortality worldwide. This project leverages the **FDA Adverse Event Reporting System (FAERS)** to monitor post-market drug safety. 
 
-By analyzing quarterly data from **2024–2025**, this research aims to uncover hidden patterns in drug co-prescription that lead to severe clinical outcomes. The ultimate goal is to alert healthcare providers to undocumented or high-risk **Drug-Drug Interactions (DDIs)** through data-driven insights.
+By analyzing quarterly data from 2025, this research aims to uncover hidden patterns in drug co-prescription that lead to severe clinical outcomes. The ultimate goal is to alert  to undocumented or high-risk **Drug-Drug Interactions (DDIs)** through data-driven insights.
 
 ---
 
 ##  Research Problems
 
-1.  **Interaction Mining:** Identifying specific drug combinations (e.g., Drug A + Drug B) with strong statistical associations to life-threatening reactions using **Association Rule Mining** (comparing Apriori and FP-Growth algorithms).
-2.  **Severity Prediction:** Developing a classification pipeline to predict the clinical severity level of a report based on patient demographics and medication history.
+1.  **Task A: Interaction Mining:** Identifying specific drug combinations (Drug A + Drug B) with strong statistical associations to life-threatening reactions using Association Rule Mining (comparing Apriori and FP-Growth algorithms).
+2.  **Task B: Severity Prediction:** Developing a classification pipeline to predict the clinical severity level of a report based on patient demographics and medication history.
 
 ---
 
 ##  Data Description
 
 * **Source:** [openFDA / FAERS API](https://open.fda.gov/apis/drug/event/)
-* **Sample Size:** ~120,000 to 150,000 records.
-* **Key Features:** * **Demographics:** Patient age, sex.
-    * **Medication:** Medicinal product name, administration route.
-    * **Clinical:** Reported reactions and outcomes.
-* **Target Variable:** `Clinical Severity` (Derived from death, hospitalization, and disability indicators).
+* **Sample Size:** 108,000 records corresponding to 9 JSON files from 2025.
+* **Key Features:** 
+    * **Demographics:** Patient age, sex.
+    * **Medication:** Medicinal product name, active substance.
+    * **Clinical:** Reported reactions and seriousness indicator.
+
 
 ---
 
-##  Technical Implementation
+## Technical Implementation
 
-### Data Processing
+### 1. Data Fields Selection - Dimensionality Reduction
+
+To ensure high performance and follow the principle of **Dimensionality Reduction**, we selected only the most relevant fields from the 69 available in the FAERS dataset. This reduces noise and improves the statistical significance of our models.
+
+#### Task A: Interaction Mining (Association Rules)
+This task focuses on finding relationships between drugs and adverse reactions.
+* **`safetyreportid`**: Acts as the **Transaction ID**. It allows us to group multiple drugs and symptoms into a single "basket" or medical case.
+* **`patient.drug.medicinalproduct`**: The commercial brand name. Used to identify associations between specific medications.
+* **`patient.drug.activesubstance.activesubstancename`**: The generic active ingredient. This is used to handle redundancy (merging different brands with the same chemical component).
+* **`patient.reaction.reactionmeddrapt`**: The standardized medical term for the reaction. This serves as the **Item Label** or "consequent" in our association rules.
+
+#### Task B: Severity Prediction (Supervised Learning)
+This task uses patient profiles to predict the clinical outcome of a report.
+* **`patient.patientonsetage`**: A numerical feature used for risk assessment, as age often correlates with reaction severity.
+* **`patient.patientsex`**: A categorical feature (1=Male, 2=Female) used to capture biological differences in drug responses.
+* **`seriousnessindicators`**: Fields such as `seriousnessdeath` or `seriousnesshospitalization` are consolidated to create our **Target Label** (Serious vs. Non-Serious).
+* **`patient.reaction.reactionoutcome`**: Used for multi-class classification to provide deeper insights into the patient's recovery status.
+
+---
+
+
+### 2. Data Processing
 * Parsing semi-structured **JSON** payloads from the openFDA API.
 * Flattening nested lists of drugs and reactions into a relational format for machine learning.
 * Feature engineering on drug classes and patient age buckets.
