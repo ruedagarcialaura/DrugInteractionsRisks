@@ -27,6 +27,29 @@ By analyzing quarterly data from 2025, this research aims to uncover hidden patt
     * **Medication:** Medicinal product name, active substance.
     * **Clinical:** Reported reactions and seriousness indicator.
 
+### Dataset Visualizations
+
+#### 1. Seriousness and Demographics
+This plot illustrates the distribution of adverse event outcomes and the gender breakdown of the reported cases.
+
+<img src="plots/seriousness_and_sex.png" width="600" alt="Seriousness and Sex">
+
+#### 2. Severity Indicators
+A detailed breakdown of the specific seriousness criteria reported (Hospitalization, Death, etc.).
+
+<img src="plots/severity_indicators_pie.png" width="400" alt="Severity Indicators" style="display: block; margin: 0 auto;">
+
+#### 3. Drug Frequency Analysis
+Comparison between reported Brand Names and their corresponding Active Substances.
+
+| Brand Names | Active Substances |
+| :---: | :---: |
+| <img src="plots/top_drug_names.png" width="400"> | <img src="plots/top_active_substances.png" width="400"> |
+
+#### 4. Transactional Complexity
+Distributions showing how many unique items are present per report, justifying the use of Association Rule Mining.
+
+<img src="plots/dist_drug_names_per_report.png" width="500" alt="Drug Distribution">
 
 ---
 
