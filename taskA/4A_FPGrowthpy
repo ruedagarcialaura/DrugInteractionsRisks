@@ -1,0 +1,72 @@
+"""
+TASK A: FP-GROWTH ALGORITHM & RULES
+-----------------------------------
+What it does: Executes the FP-Growth (Frequent Pattern Growth) algorithm.
+Goal: To handle large datasets and low support thresholds more efficiently than Apriori.
+This script overcomes the "MemoryError" by using a compressed tree structure 
+to find frequent itemsets and complex interactions (Drug A + Drug B -> Reaction).
+"""
+
+import pandas as pd
+from mlxtend.frequent_patterns import fpgrowth, association_rules
+import os
+from tqdm import tqdm
+import time
+
+def run_fpgrowth_mining(file_path, min_support=0.001):
+    # 1. Progress bar for loading the data
+    print("\n--- Initializing Data Mining Process ---")
+    with tqdm(total=3, desc="Mining Pipeline", colour="cyan") as pbar:
+        
+        # Step 1: Loading
+        df = pd.read_parquet(file_path)
+        pbar.update(1)
+        pbar.set_description("Pruning items...")
+
+        # --- PRUNING ---
+        item_support = df.mean(axis=0)
+        frequent_cols = item_support[item_support >= min_support].index
+        df_filtered = df[frequent_cols]
+        
+        pbar.update(1)
+        pbar.set_description("Building FP-Tree (Processing)...")
+
+        if df_filtered.empty:
+            print("No items met the support threshold.")
+            return None
+
+        # --- FP-GROWTH ---
+        # Note: fpgrowth doesn't support tqdm natively, 
+        # but the pbar will stay visible in cyan while it works.
+        frequent_itemsets = fpgrowth(df_filtered, min_support=min_support, use_colnames=True)
+        
+        pbar.update(1)
+        pbar.set_description("Complete!")
+
+    if frequent_itemsets.empty:
+        print("No frequent itemsets found.")
+        return None
+
+    # --- GENERATING RULES ---
+    print("Generating association rules...")
+    rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
+    rules = rules.sort_values('lift', ascending=False)
+    
+    print(f"Found {len(rules)} association rules.")
+    return rules
+
+if __name__ == "__main__":
+    # Your calling code remains the same...
+    results = run_fpgrowth_mining("taskA/active_substances_encoded.parquet", min_support=0.002)
+    
+    if results is not None:
+        # (Rest of your printing logic)
+        print("\nTOP 10 RULES FOUND (GENERAL):")
+        print(results[['antecedents', 'consequents', 'support', 'confidence', 'lift']].head(10))
+
+        interactions = results[results['antecedents'].apply(lambda x: len(x) > 1)]
+        print("\nDETECTED INTERACTIONS (2+ ITEMS):")
+        if not interactions.empty:
+            print(interactions[['antecedents', 'consequents', 'lift']].head(15))
+        else:
+            print("No multi-item interactions found at this support level.")

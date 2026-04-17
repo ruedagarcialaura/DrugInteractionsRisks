@@ -1,3 +1,11 @@
+"""
+DATA EXPLORATION SCRIPT
+-----------------------
+What it does: Generates statistical visualizations (histograms, pie charts, bar plots).
+Goal: To understand the dataset's demographics, most frequent medications, and 
+seriousness levels. It saves all charts automatically to the /plots folder.
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns

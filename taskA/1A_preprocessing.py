@@ -1,3 +1,13 @@
+"""
+TASK A: PREPROCESSING SCRIPT
+----------------------------
+What it does: Extracts and cleans drug names, active substances, and patient 
+reactions from the raw nested dictionaries. It then groups them by report ID.
+Goal: To create two separate transactional datasets ("Brand Names + Reactions" 
+and "Active Substances + Reactions") to compare which one yields better 
+association rules.
+"""
+
 import pandas as pd
 
 def preprocess_for_association(parquet_path):
