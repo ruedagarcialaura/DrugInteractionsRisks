@@ -63,10 +63,12 @@ if __name__ == "__main__":
         # (Rest of your printing logic)
         print("\nTOP 10 RULES FOUND (GENERAL):")
         print(results[['antecedents', 'consequents', 'support', 'confidence', 'lift']].head(10))
+        results.to_csv("taskA/final_association_rules.csv", index=False)
 
         interactions = results[results['antecedents'].apply(lambda x: len(x) > 1)]
         print("\nDETECTED INTERACTIONS (2+ ITEMS):")
         if not interactions.empty:
-            print(interactions[['antecedents', 'consequents', 'lift']].head(15))
+            print(interactions[['antecedents', 'consequents', 'support', 'confidence', 'lift']].head(15))
         else:
             print("No multi-item interactions found at this support level.")
+        
