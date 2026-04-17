@@ -43,16 +43,21 @@ pip install -r requirements.txt
 #### 1. Seriousness and Demographics
 This plot illustrates the distribution of adverse event outcomes and the gender breakdown of the reported cases.
 
-<img src="plots/seriousness_and_sex.png" width="600" alt="Seriousness and Sex">
+<p align="center">
+  <img src="plots/seriousness_and_sex.png" width="600" alt="Seriousness and Sex">
+</p>
+
 
 #### 2. Severity Indicators
 
-<div style="display: flex; align-items: center; gap: 20px;">
-    <div style="flex: 1;">A detailed breakdown of the specific seriousness criteria reported (Hospitalization, Death, etc.).</div>
-    <div style="flex: 0 0 auto;">
-        <img src="plots/severity_indicators_pie.png" width="400" alt="Severity Indicators">
-    </div>
-</div>
+<img src="plots/severity_indicators_pie.png" width="500" align="right">
+
+<br/><br/><br/>
+<br/><br/><br/>
+
+A detailed breakdown of the specific seriousness criteria reported (Hospitalization, Death, Disabling, etc.).
+
+<br clear="right"/>
 
 #### 3. Drug Frequency Analysis
 Comparison between reported Brand Names and their corresponding Active Substances.
@@ -63,9 +68,14 @@ Comparison between reported Brand Names and their corresponding Active Substance
 
 #### 4. Transactional Complexity
 Distributions showing how many unique items are present per report, justifying the use of Association Rule Mining.
-
+<p align="center">
 <img src="plots/dist_drug_names_per_report.png" width="500" alt="Drug Distribution">
+<<<<<<< HEAD
 
+=======
+</p>
+---
+>>>>>>> 1955e72953dbf40656d94c06cc967459abbbc3f9
 
 
 ## Technical Implementation of Task A: Interaction Mining (Association Rules)
