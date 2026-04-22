@@ -10,6 +10,7 @@ to find frequent itemsets and complex interactions (Drug A + Drug B -> Reaction)
 import pandas as pd
 from mlxtend.frequent_patterns import fpgrowth, association_rules
 import os
+import argparse
 from tqdm import tqdm
 import time
 
@@ -56,14 +57,24 @@ def run_fpgrowth_mining(file_path, min_support=0.001):
     return rules
 
 if __name__ == "__main__":
-    # Your calling code remains the same...
-    results = run_fpgrowth_mining("taskA/active_substances_encoded.parquet", min_support=0.002)
+    parser = argparse.ArgumentParser(description="Run FP-Growth association mining")
+    parser.add_argument("--file_path", default="taskA/active_substances_encoded.parquet", help="Path to encoded parquet input file")
+    parser.add_argument("--min_support", type=float, default=0.002, help="Minimum support threshold")
+    args = parser.parse_args()
+
+    results = run_fpgrowth_mining(args.file_path, min_support=args.min_support)
     
     if results is not None:
         # (Rest of your printing logic)
         print("\nTOP 10 RULES FOUND (GENERAL):")
         print(results[['antecedents', 'consequents', 'support', 'confidence', 'lift']].head(10))
-        results.to_csv("taskA/final_association_rules.csv", index=False)
+        input_name = os.path.splitext(os.path.basename(args.file_path))[0]
+        min_support_tag = f"{args.min_support:g}".replace(".", "_")
+        output_path = os.path.join(
+            os.path.dirname(args.file_path) or ".",
+            f"final_association_rules_FPG_GROWTH_{input_name}_{min_support_tag}.csv"
+        )
+        results.to_csv(output_path, index=False)
 
         interactions = results[results['antecedents'].apply(lambda x: len(x) > 1)]
         print("\nDETECTED INTERACTIONS (2+ ITEMS):")

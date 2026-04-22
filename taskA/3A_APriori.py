@@ -11,6 +11,7 @@ profiles caused by specific medications.
 import pandas as pd
 from mlxtend.frequent_patterns import apriori, association_rules
 import os
+import argparse
 
 def run_association_mining(file_path, min_support=0.01):
     print(f"\n--- Loading Matrix: {file_path} ---")
@@ -53,11 +54,23 @@ def run_association_mining(file_path, min_support=0.01):
     return rules
 
 if __name__ == "__main__":
-    results = run_association_mining("taskA/active_substances_encoded.parquet", min_support=0.005)
+    parser = argparse.ArgumentParser(description="Run Apriori association mining")
+    parser.add_argument("--file_path", default="taskA/active_substances_encoded.parquet", help="Path to encoded parquet input file")
+    parser.add_argument("--min_support", type=float, default=0.005, help="Minimum support threshold")
+    args = parser.parse_args()
+
+    results = run_association_mining(args.file_path, min_support=args.min_support)
     
     if results is not None:
         print("\nTOP 10 RULES FOUND:")
         print(results[['antecedents', 'consequents', 'support', 'confidence', 'lift']].head(10))
+        input_name = os.path.splitext(os.path.basename(args.file_path))[0]
+        min_support_tag = f"{args.min_support:g}".replace(".", "_")
+        output_path = os.path.join(
+            os.path.dirname(args.file_path) or ".",
+            f"final_association_rules_APRIORI_{input_name}_{min_support_tag}.csv"
+        )
+        results.to_csv(output_path, index=False)
 
         # Filter rules where the antecedent contains more than one item
         # This helps identify drug-drug interactions (Drug A + Drug B -> Reaction)
