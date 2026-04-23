@@ -70,13 +70,8 @@ Comparison between reported Brand Names and their corresponding Active Substance
 Distributions showing how many unique items are present per report, justifying the use of Association Rule Mining.
 <p align="center">
 <img src="plots/dist_drug_names_per_report.png" width="500" alt="Drug Distribution">
-<<<<<<< HEAD
-
-=======
 </p>
 ---
->>>>>>> 1955e72953dbf40656d94c06cc967459abbbc3f9
-
 
 ## Technical Implementation of Task A: Interaction Mining (Association Rules)
 
@@ -101,7 +96,7 @@ Task A focuses on finding relationships between drugs and adverse reactions.
 ### 3. Modeling Pipeline: Association Rules
 **Association Rules:** Apriori and FP-Growth to determine Support, Confidence, and Lift.
 
-* ** Apriori**:
+* **Apriori**:
 
 The minimum support acts as a statistical threshold that filters out rare medications and reactions, ensuring the algorithm only analyzes items with enough frequency to be significant. While we set a baseline of 0.01 (1%), we adjust this value to 0.005 (0.5%) to capture less frequent but clinically relevant associations that a higher threshold would ignore.
 
