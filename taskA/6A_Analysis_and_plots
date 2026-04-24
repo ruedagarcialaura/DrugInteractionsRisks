@@ -69,10 +69,10 @@ def generate_formal_plot(csv_path):
     sns.despine(left=True, bottom=True) # Remove the axis box
     plt.tight_layout()
     
-    output_plot = "plots/discovery_medical_network.png"
+    output_plot = "plots/associations_medical_network_0.001_APRIORI.png"
     plt.savefig(output_plot, dpi=300)
     print(f" Plot saved to {output_plot}")
     plt.show()
 
 if __name__ == "__main__":
-    generate_formal_plot("taskA/discovery_results.csv")
+    generate_formal_plot("taskA/final_association_rules_APRIORI_drug_names_encoded_0_001.csv")

@@ -7,3 +7,4 @@ seaborn
 mlxtend
 fastparquet
 pyarrow
+tqdm

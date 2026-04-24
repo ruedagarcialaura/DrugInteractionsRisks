@@ -54,7 +54,7 @@ def filter_true_interactions(csv_input):
         
         print("\nTOP 15 GENUINE MEDICAL INTERACTIONS:")
         print(true_interactions[['antecedents', 'consequents', 'confidence', 'lift']].head(15))
-        print(f"\n✅ Results saved to: {output_path}")
+        print(f"\n Results saved to: {output_path}")
     else:
         print("No complex interactions found after filtering noise.")
         print("TIP: Try lowering your 'min_support' to 0.0005 in your FP-Growth script to find rarer interactions.")
