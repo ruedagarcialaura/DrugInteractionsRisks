@@ -7,7 +7,7 @@ from matplotlib.lines import Line2D
 def generate_formal_plot(csv_path):
     # Set Seaborn style for a clean, professional look
     sns.set_theme(style="white")
-    
+
     df = pd.read_csv(csv_path)
     # We take the top rules to avoid cluttering the professional look
     top_rules = df.sort_values('lift', ascending=False).head(12)
@@ -25,7 +25,8 @@ def generate_formal_plot(csv_path):
     pos = nx.spring_layout(G, k=2, seed=42)
 
     plt.figure(figsize=(14, 10))
-    
+
+
     # Define professional colors using a Seaborn palette
     # Cyan for Drugs, Soft Red/Coral for Reactions
     palette = sns.color_palette("Set2")
@@ -42,18 +43,18 @@ def generate_formal_plot(csv_path):
 
     # 1. Draw Edges with transparency
     weights = [G[u][v]['weight'] / 30 for u, v in G.edges()]
-    nx.draw_networkx_edges(G, pos, width=weights, edge_color='lightgray', 
+    nx.draw_networkx_edges(G, pos, width=weights, edge_color='lightgray',
                            arrows=True, arrowsize=20, connectionstyle='arc3,rad=0.1')
 
     # 2. Draw Nodes with Seaborn colors
-    nx.draw_networkx_nodes(G, pos, node_size=2500, node_color=node_colors, 
+    nx.draw_networkx_nodes(G, pos, node_size=2500, node_color=node_colors,
                            edgecolors='white', linewidths=2)
 
     # 3. Draw Labels with a professional font style
     nx.draw_networkx_labels(G, pos, font_size=9, font_weight='bold', font_family='sans-serif',
                             bbox=dict(facecolor='white', edgecolor='none', alpha=0.6, boxstyle='round,pad=0.2'))
 
-    # 4. CREATE A CUSTOM LEGEND 
+    # 4. CREATE A CUSTOM LEGEND
     legend_elements = [
         Line2D([0], [0], marker='o', color='w', label='Drug / Combination',
                markerfacecolor=drug_color, markersize=15),
@@ -61,18 +62,21 @@ def generate_formal_plot(csv_path):
                markerfacecolor=reaction_color, markersize=15),
         Line2D([0], [0], color='lightgray', lw=2, label='Association Strength (Lift)')
     ]
+
     plt.legend(handles=legend_elements, loc='upper right', title="Legend", frameon=True, fontsize=10)
 
-    plt.title("Pharmacovigilance Signal Discovery: Association Rule Network", 
+    plt.title("Pharmacovigilance Signal Discovery: Association Rule Network",
               fontsize=18, fontweight='bold', pad=20, fontfamily='serif')
-    
+
+
     sns.despine(left=True, bottom=True) # Remove the axis box
     plt.tight_layout()
-    
-    output_plot = "plots/associations_medical_network_0.001_APRIORI.png"
+
+
+    output_plot = "plots/associations_network_prueba.png"
     plt.savefig(output_plot, dpi=300)
     print(f" Plot saved to {output_plot}")
     plt.show()
 
 if __name__ == "__main__":
-    generate_formal_plot("taskA/final_association_rules_APRIORI_drug_names_encoded_0_001.csv")
+    generate_formal_plot("taskA/final_association_rules.csv")

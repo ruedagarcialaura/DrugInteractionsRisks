@@ -49,7 +49,7 @@ def filter_true_interactions(csv_input):
     
     if not true_interactions.empty:
         # Save to a new dedicated file
-        output_path = "taskA/filtered_medical_interactions.csv"
+        output_path = "taskA/filtered_final_association_rules_APRIORI_active_substances_encoded_0_0025.csv"
         true_interactions.to_csv(output_path, index=False)
         
         print("\nTOP 15 GENUINE MEDICAL INTERACTIONS:")
@@ -61,4 +61,4 @@ def filter_true_interactions(csv_input):
 
 if __name__ == "__main__":
     # Point this to your FP-Growth results
-    filter_true_interactions("taskA/final_association_rules.csv")
+    filter_true_interactions("taskA/final_association_rules_APRIORI_active_substances_encoded_0_0025.csv")
