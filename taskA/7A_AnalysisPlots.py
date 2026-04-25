@@ -42,7 +42,10 @@ def generate_formal_plot(csv_path):
 
     df = pd.read_csv(csv_path)
     # We take the top rules to avoid cluttering the professional look
-    top_rules = df.sort_values('lift', ascending=False).head(12)
+    #top_rules = df.sort_values('lift', ascending=False).head(12)
+
+    # top rules for the min_support 0.001 to obtain a more meaningful plot
+    top_rules = df[df['confidence'] > 0.8].sort_values('lift', ascending=True).head(12)
 
     G = nx.DiGraph()
     reactions_list = set()
