@@ -44,13 +44,13 @@ pip install -r requirements.txt
 This plot illustrates the distribution of adverse event outcomes and the gender breakdown of the reported cases.
 
 <p align="center">
-  <img src="plots/seriousness_and_sex.png" width="600" alt="Seriousness and Sex">
+  <img src="plots/seriousness_and_sex.png" width="500" alt="Seriousness and Sex">
 </p>
 
 
 #### 2. Severity Indicators
 
-<img src="plots/severity_indicators_pie.png" width="500" align="right">
+<img src="plots/severity_indicators_pie.png" width="400" align="right">
 
 <br/><br/><br/>
 <br/><br/><br/>
