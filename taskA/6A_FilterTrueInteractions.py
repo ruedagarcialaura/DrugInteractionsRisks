@@ -9,6 +9,7 @@ of the underlying disease.
 
 import pandas as pd
 import os
+import argparse
 
 def filter_true_interactions(csv_input):
     if not os.path.exists(csv_input):
@@ -48,8 +49,13 @@ def filter_true_interactions(csv_input):
     print(f"\n--- Analysis Complete: {len(true_interactions)} True Interactions Found ---")
     
     if not true_interactions.empty:
-        # Save to a new dedicated file
-        output_path = "taskA/filtered_final_association_rules_APRIORI_active_substances_encoded_0_0025.csv"
+        # --- DINAMIC OUTPUT NAME LOGIC ---
+        input_filename = os.path.basename(csv_input)
+        
+        output_filename = "filtered_" + input_filename
+        output_dir = "taskA/filtered_association_rules"
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, output_filename)
         true_interactions.to_csv(output_path, index=False)
         
         print("\nTOP 15 GENUINE MEDICAL INTERACTIONS:")
@@ -57,8 +63,14 @@ def filter_true_interactions(csv_input):
         print(f"\n Results saved to: {output_path}")
     else:
         print("No complex interactions found after filtering noise.")
-        print("TIP: Try lowering your 'min_support' to 0.0005 in your FP-Growth script to find rarer interactions.")
+        print("TIP: Try lowering your 'min_support' in your mining script.")
 
 if __name__ == "__main__":
-    # Point this to your FP-Growth results
-    filter_true_interactions("taskA/final_association_rules_APRIORI_active_substances_encoded_0_0025.csv")
+    # arguments parser for command line execution
+    parser = argparse.ArgumentParser(description="Filter association rules for genuine medical signals")
+    parser.add_argument("--input", required=True, help="Path to the association rules CSV file")
+    
+    args = parser.parse_args()
+
+    # execute the filtering function
+    filter_true_interactions(args.input)

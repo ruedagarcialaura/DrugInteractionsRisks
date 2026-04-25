@@ -10,6 +10,7 @@ association rules.
 
 import pandas as pd
 
+
 def preprocess_for_association(parquet_path):
 
     print(f"Loading data from {parquet_path}...")

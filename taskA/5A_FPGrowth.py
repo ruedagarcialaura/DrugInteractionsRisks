@@ -69,10 +69,15 @@ if __name__ == "__main__":
         print("\nTOP 10 RULES FOUND (GENERAL):")
         print(results[['antecedents', 'consequents', 'support', 'confidence', 'lift']].head(10))
         input_name = os.path.splitext(os.path.basename(args.file_path))[0]
+        input_name_replaced = input_name.replace("_encoded", "")
         min_support_tag = f"{args.min_support:g}".replace(".", "_")
+
+        output_dir = "taskA/association_rules"
+        os.makedirs(output_dir, exist_ok=True)
+        
         output_path = os.path.join(
-            os.path.dirname(args.file_path) or ".",
-            f"final_association_rules_FPG_GROWTH_{input_name}_{min_support_tag}.csv"
+            output_dir,
+            f"association_rules_FP_GROWTH_{input_name_replaced}_{min_support_tag}.csv"
         )
         results.to_csv(output_path, index=False)
 
