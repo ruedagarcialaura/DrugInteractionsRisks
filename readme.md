@@ -106,7 +106,7 @@ Both the Apriori and FP-Growth algorithms were implemented to compare their outp
 Following the modeling pipeline, the raw rules were subjected to a **Deep Filtering** step. This was crucial to remove administrative terms or "indication bias" (instances where a drug was simply linked to the disease it is intended to treat rather than a genuine side effect). 
 
 #### **4.1 Evaluation of Feature Focus**
-Two different feature spaces were evaluated during this phase: **Brand Names** (e.g., "Advil") versus **Active Substances** (e.g., "Ibuprofen"). 
+Two different feature spaces were evaluated during this phase: **Brand Names**  versus **Active Substances**. 
 
 Selecting active substances over brand names proved essential for reducing noise and maintaining scientific rigor in the Knowledge Discovery in Databases (KDD) process. Commercial brands often fragment identical chemical profiles, which dilutes statistical significance and obscures true signals. By consolidating these redundant labels into their core active components, the dataset achieved higher intra-class similarity, allowing the algorithms to detect adverse reactions with substantially higher Support and Lift. This approach acted as a form of Feature Reduction that isolated genuine Drug-Drug Interactions (DDI), transforming high-dimensional data into clear, actionable intelligence.
 
@@ -140,7 +140,7 @@ To validate the model's robustness and understand the limits of lower thresholds
 When sorting by the **highest Lift**, the network becomes dominated by extreme mathematical coincidences (Lift > 850). These rules represent extremely rare events (fortuitous combinations of multiple drugs and symptoms occurring in only one or two patients) that do not constitute a reliable statistical signal, but rather "noise" that saturates the system.
 
 <p align="center">
-<img src="taskA/TaskAPlots/association_rules_APRIORI_drug_names_0_001_top_lift.png" width="400" alt="High Lift Noise">
+<img src="taskA/TaskAPlots/association_rules_APRIORI_drug_names_0_001_top_lift.png" width="600" alt="High Lift Noise">
 <br><i><b>Figure 2:</b> Network with 0.001 support sorted by highest Lift. Visual saturation is observed due to the extreme magnitude of spurious associations.</i>
 </p>
 
@@ -150,7 +150,7 @@ When filtering for high Confidence but with the **lowest Lift** (displaying the 
 For instance, the network correctly detects that patients with autoimmune diseases taking *Humira* or *Methotrexate* almost always receive *Prednisone* as well. Although this pattern is real, it represents an "indication bias" and standard treatment protocols rather than the discovery of a novel safety risk.
 
 <p align="center">
-<img src="taskA/TaskAPlots/association_rules_APRIORI_drug_names_0_001_least_lift.png" width="400" alt="Low Lift Co-prescription">
+<img src="taskA/TaskAPlots/association_rules_APRIORI_drug_names_0_001_least_lift.png" width="600" alt="Low Lift Co-prescription">
 <br><i><b>Figure 3:</b> Network with 0.001 support sorted by lowest Lift. The central orange nodes are medications (e.g., Prednisone, Dupixent) instead of symptoms, revealing treatment protocols rather than side effects.</i>
 </p>
 
