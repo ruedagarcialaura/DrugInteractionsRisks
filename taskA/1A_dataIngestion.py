@@ -3,7 +3,7 @@ DATA INGESTION SCRIPT
 ---------------------
 What it does: Downloads raw JSON data from the openFDA / FAERS API.
 Goal: To collect the necessary adverse event reports (>100k records) and store them locally 
-in a parquet file before we begin any processing.
+in a parquet file (consolidated_data.parquet) before we begin any processing.
 """
 
 import pandas as pd
