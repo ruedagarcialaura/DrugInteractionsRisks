@@ -161,15 +161,49 @@ The KDD pipeline successfully extracted meaningful pharmacovigilance signals fro
 Furthermore, implementing both **Apriori** and **FP-Growth** allowed us to cross-verify our results; both algorithms yielded identical rule sets at the optimal threshold, confirming the mathematical consistency of our methodology. Finally, prioritizing **Active Substances** over commercial Drug Names acted as a highly effective feature reduction technique, successfully consolidating redundant data into actionable, medically accurate safety signals.
 
 ## Technical Implementation of Task B: Severity Prediction (Supervised Learning)
+
 ### 1. Data Fields Selection - Dimensionality Reduction
-This task uses patient profiles to predict the clinical outcome of a report.
-* **`patient.patientonsetage`**: A numerical feature used for risk assessment, as age often correlates with reaction severity.
-* **`patient.patientsex`**: A categorical feature (1=Male, 2=Female) used to capture biological differences in drug responses.
-* **`seriousnessindicators`**: Fields such as `seriousnessdeath` or `seriousnesshospitalization` are consolidated to create our **Target Label** (Serious vs. Non-Serious).
-* **`patient.reaction.reactionoutcome`**: Used for multi-class classification to provide deeper insights into the patient's recovery status.
+
+Task B goes beyond simple field selection and applies **Feature Engineering** to transform the raw FAERS fields into a structured, fully numeric feature matrix (`taskB/task_b_features.parquet`, 108,000 rows × 25 columns). The fields selected and the rationale behind each group are:
+
+* **`patient.patientonsetage`**: A continuous numerical feature. Age is one of the strongest physiological predictors of adverse event severity, as older patients typically have reduced metabolic capacity and higher comorbidity rates. ~40% of FAERS reports omit this field; NaN values are preserved intentionally so each model can apply the appropriate imputation strategy within its own pipeline.
+* **`patient.patientsex`**: One-hot encoded into three binary columns (`is_male`, `is_female`, `sex_unknown`) to avoid imposing a false ordinal relationship between the categorical codes used by FAERS (1, 2, 0).
+* **`seriousnessdeath`, `seriousnesshospitalization`, `seriousnesslifethreatening`**: Consolidated into a single binary **Target Label** (`is_severe_outcome = 1`) whenever any of these indicators is present. This definition captures the three most clinically critical outcomes and produces a balanced, interpretable target.
+* **Polypharmacy index (`num_drugs_taken`)**: Derived by counting the unique active substances per report. Polypharmacy is the primary pharmacokinetic risk factor for drug-drug interactions; a high count directly increases the probability of an unintended interaction.
+* **Top-15 active substance flags**: The 15 most prevalent substances in the dataset are encoded as binary indicator columns. These represent the drugs with the highest population exposure and, consequently, the highest absolute number of reported adverse events: TIRZEPATIDE, DUPILUMAB, PREDNISONE, METHOTREXATE, OMALIZUMAB, ADALIMUMAB, ACETAMINOPHEN, INFLIXIMAB, RITUXIMAB, TOCILIZUMAB, among others.
+* **Interaction risk features (from Task A)**: Four columns derived from the filtered association rules produced by Task A (lift ≥ 2.0), bridging the two research tasks:
+  * `has_drug_drug_interaction`: 1 if the report's drug set contains a known high-risk combination (e.g. DOXORUBICIN + CYCLOPHOSPHAMIDE).
+  * `has_drug_reaction_rule`: 1 if the report's drugs match a rule whose consequent is a MedDRA adverse reaction — the strongest direct pharmacovigilance signal.
+  * `num_matching_rules`: Count of triggered rules, capturing the cumulative interaction burden.
+  * `max_interaction_lift`: Highest lift value among triggered rules, providing a continuous measure of association strength.
+
 ### 2. Data Processing
-### 3. Modeling Pipeline:
+
+The preprocessing pipeline is split into two sequential scripts, mirroring the structure of Task A.
+
+**Step 1B — Data Ingestion** (`taskB/1B_dataIngestion.py`): Reads the 9 FAERS quarterly JSON files directly from the source ZIP archive using Python's `zipfile` module, without extracting them to disk. Each file is parsed, normalized via `pd.json_normalize()`, and concatenated into the shared `consolidated_data.parquet` (108,000 rows, 40 raw columns). This parquet file is shared with Task A, as both tasks operate on the same underlying FAERS dataset.
+
+**Step 2B — Feature Engineering** (`taskB/2B_preprocessing.py`): Constructs the feature matrix from the consolidated parquet. Key processing decisions:
+
+* The `patient.drug` column, which contains a list of drug dictionaries per report, is exploded row-by-row. Active substance extraction handles two formats present in the FAERS raw data: the field `activesubstance` appears sometimes as a Python `dict` and sometimes as a `list`, requiring format-aware parsing.
+* Active substance names are upper-cased and stripped to ensure consistent matching with the Task A rule antecedents.
+* No scaling or global imputation is applied at this stage. This is a deliberate architectural decision: applying a `StandardScaler` or `SimpleImputer` before the train/test split would constitute **data leakage**. Both transformations are instead encapsulated inside each model's `sklearn.Pipeline`, fitted exclusively on training data.
+
+### 3. Modeling Pipeline
+
+**Classification Target:** `is_severe_outcome` (binary: 1 = severe, 0 = non-severe).
+
+**Class Balance:** The dataset presents a moderate imbalance — 26.6% severe (28,683) vs. 73.4% non-severe (79,317). Raw accuracy is therefore a misleading metric; models will be evaluated using **AUC-ROC** and **weighted F1-score**. Class imbalance is addressed by setting `class_weight='balanced'` on estimators that support it.
+
 **Classification:** Logistic Regression, Random Forest, and Support Vector Machines (SVM).
+
+Each algorithm requires a different preprocessing strategy, enforced through `sklearn.Pipeline` to prevent data leakage:
+
+| Algorithm | Imputation | Scaling | Notes |
+| :--- | :---: | :---: | :--- |
+| **Random Forest** | Median | — | Handles non-linearity natively; robust to NaN after imputation |
+| **Logistic Regression** | Median | StandardScaler | Linear decision boundary; sensitive to feature scale |
+| **SVM (RBF kernel)** | Median | StandardScaler | Most sensitive to scale; can capture non-linear interactions |
 
 
 
