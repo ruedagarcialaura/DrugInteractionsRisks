@@ -28,13 +28,31 @@ RULES_GLOB   = "taskA/filtered_association_rules/*.csv"
 OUTPUT_PATH  = "taskB/task_b_features.parquet"
 LIFT_THRESHOLD = 2.0
 TOP_N_DRUGS    = 15
-TOP_N_REACTIONS = 15
+TOP_N_REACTIONS = 50   # expand to compensate for excluded terms
 
-# Reactions that would directly leak the severity target:
-# seriousnessdeath=1 is often paired with "DEATH" reaction term — exclude.
+# Reactions excluded from features:
+# 1. Death-related terms: directly leak the severity target (seriousnessdeath=1)
+# 2. Admin/pharmacovigilance terms: not clinical reactions, add noise
 EXCLUDE_REACTIONS = {
+    # Death leakage
     "DEATH", "COMPLETED SUICIDE", "SUDDEN DEATH", "HOMICIDE",
     "ACCIDENTAL DEATH", "APPARENT DEATH",
+    # Admin/operational terms — not clinical adverse events
+    "PRODUCT DOSE OMISSION ISSUE", "INCORRECT DOSE ADMINISTERED",
+    "OFF LABEL USE", "DRUG INEFFECTIVE",
+    "PRODUCT USE IN UNAPPROVED INDICATION",
+    "PRODUCT ADMINISTERED TO PATIENT OF INAPPROPRIATE AGE",
+    "DRUG USE ISSUE", "WRONG TECHNIQUE IN DRUG USAGE PROCESS",
+    "PRODUCT QUALITY ISSUE",
+    "INAPPROPRIATE SCHEDULE OF PRODUCT ADMINISTRATION",
+    # Non-specific / meta terms
+    "NO ADVERSE EVENT", "ADVERSE DRUG REACTION", "ILLNESS",
+    "DRUG INTERACTION", "PRODUCT SUBSTITUTION ISSUE",
+    # Hospitalisation — directly encodes seriousnesshospitalization=1 (target leakage)
+    "HOSPITALISATION", "HOSPITALISATION EMERGENCY",
+    # More admin/device terms
+    "DRUG DOSE OMISSION BY DEVICE", "WRONG TECHNIQUE IN PRODUCT USAGE PROCESS",
+    "PRODUCT USE ISSUE",
 }
 
 
@@ -132,6 +150,32 @@ def _build_drug_features(df, top_n):
     return poly, flags_df, drug_sets
 
 
+def _build_drug_characterization(df):
+    """
+    Extract drug role per report: suspect (1), concomitant (2), interacting (3).
+    More suspect drugs = more complex adverse event picture.
+    """
+    drugs_exp = df[['safetyreportid', 'patient.drug']].explode('patient.drug').copy()
+    drugs_exp = drugs_exp[drugs_exp['patient.drug'].apply(lambda x: isinstance(x, dict))]
+
+    def _get_char(d):
+        return str(d.get('drugcharacterization', '')).strip()
+
+    drugs_exp['char'] = drugs_exp['patient.drug'].apply(_get_char)
+
+    num_suspect = (
+        drugs_exp[drugs_exp['char'] == '1']
+        .groupby('safetyreportid')['char'].count()
+        .rename('num_suspect_drugs')
+    )
+    num_concomitant = (
+        drugs_exp[drugs_exp['char'] == '2']
+        .groupby('safetyreportid')['char'].count()
+        .rename('num_concomitant_drugs')
+    )
+    return num_suspect, num_concomitant
+
+
 def _build_reaction_features(df, top_n, exclude=None):
     """
     Extract top-N MedDRA reaction terms as binary flags + reaction count.
@@ -177,6 +221,22 @@ def _build_reaction_features(df, top_n, exclude=None):
 
     flags_df = pd.DataFrame(flags, index=df.index)
     return num_reactions, flags_df
+
+
+def _build_reporter_features(df):
+    """
+    Encode primarysource.qualification as binary flags.
+    FAERS codes: 1=Physician, 2=Pharmacist, 3=Other HCP, 4=Lawyer, 5=Consumer.
+    Reporter type correlates with report accuracy and severity distribution.
+    """
+    qual = df.get('primarysource.qualification',
+                  pd.Series(dtype=str, index=df.index)).fillna('0').astype(str).str.strip()
+    return pd.DataFrame({
+        'reporter_physician':   (qual == '1').astype('int8'),
+        'reporter_pharmacist':  (qual == '2').astype('int8'),
+        'reporter_other_hcp':   (qual == '3').astype('int8'),
+        'reporter_consumer':    (qual == '5').astype('int8'),
+    }, index=df.index)
 
 
 def _build_interaction_features(report_ids, drug_sets, rules_glob, lift_threshold):
@@ -270,10 +330,21 @@ def build_features(
     poly, drug_flags, drug_sets = _build_drug_features(df, top_n_drugs)
     print()
 
+    # ── D2. Drug characterization ──────────────────────────────────────────
+    print("D2. Building drug characterization features (suspect/concomitant)...")
+    num_suspect, num_concomitant = _build_drug_characterization(df)
+    print(f"  Reports with suspect drugs: {len(num_suspect):,}")
+    print()
+
     # ── E. Reaction features ───────────────────────────────────────────────
     print("E. Building reaction features (MedDRA top terms)...")
     num_reactions, reaction_flags = _build_reaction_features(df, top_n_reactions)
     print()
+
+    # ── E2. Reporter features ──────────────────────────────────────────────
+    print("E2. Building reporter qualification features...")
+    reporter_flags = _build_reporter_features(df)
+    print(f"  Reporter dist: {reporter_flags.sum().to_dict()}\n")
 
     # ── F. Interaction features ────────────────────────────────────────────
     print("F. Building interaction features from Task A rules...")
@@ -292,7 +363,13 @@ def build_features(
     base['num_reactions'] = num_reactions.reindex(df['safetyreportid'].values).values
     base['num_reactions'] = base['num_reactions'].fillna(0).astype(int)
 
-    result = pd.concat([base, drug_flags, reaction_flags, interactions], axis=1)
+    base['num_suspect_drugs'] = num_suspect.reindex(df['safetyreportid'].values).values
+    base['num_suspect_drugs'] = base['num_suspect_drugs'].fillna(0).astype(int)
+
+    base['num_concomitant_drugs'] = num_concomitant.reindex(df['safetyreportid'].values).values
+    base['num_concomitant_drugs'] = base['num_concomitant_drugs'].fillna(0).astype(int)
+
+    result = pd.concat([base, drug_flags, reaction_flags, reporter_flags, interactions], axis=1)
     result.index = df['safetyreportid']
     result.index.name = 'safetyreportid'
 
