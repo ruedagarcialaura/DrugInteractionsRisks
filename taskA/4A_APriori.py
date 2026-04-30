@@ -45,7 +45,8 @@ def run_association_mining(file_path, min_support=0.01):
 
     # --- GENERATING RULES ---
     # we use lift as the metric to find interesting associations. A lift > 1 indicates a positive association between antecedent and consequent.
-    rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
+    rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0,
+                              num_itemsets=len(frequent_itemsets))
     
     # Order by lift descending to get the most interesting rules at the top
     rules = rules.sort_values('lift', ascending=False)
