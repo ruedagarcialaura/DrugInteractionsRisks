@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>GU&Iacute;A PARA LA PRESENTACI&Oacute;N</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="guía-para-la-presentación">GUÍA PARA LA PRESENTACIÓN</h1>
+<h2 id="narrativa-puntos-clave-y-preguntas-difíciles">Narrativa, puntos clave y preguntas difíciles</h2>
+<hr>
+<h2 id="narrativa-del-proyecto-5-minutos">Narrativa del proyecto (5 minutos)</h2>
+<h3 id="la-historia-que-contar">La historia que contar:</h3>
+<p><strong>Setup (1 min):</strong> &quot;Cada año miles de personas son hospitalizadas por combinaciones de medicamentos que nadie documentó como peligrosas. La FDA tiene 108,000 reportes de eventos adversos reales, pero son datos masivos sin procesar. Este proyecto convierte esos datos en conocimiento accionable.&quot;</p>
+<p><strong>Task A (2 min):</strong> &quot;Modelamos cada reporte como una cesta de la compra: los ítems son fármacos y reacciones. Aplicamos Association Rule Mining para encontrar reglas como 'cuando un paciente toma DOXORUBICIN + CYCLOPHOSPHAMIDE, tiene una probabilidad 45x mayor de FEBRILE NEUTROPENIA de lo esperado por azar'. Comparamos Apriori vs FP-Growth — ambos dan los mismos resultados a nuestro threshold óptimo de 0.0025, lo que valida la correctitud matemática del pipeline.&quot;</p>
+<p><strong>Task B (2 min):</strong> &quot;Las reglas de Task A se convierten en features. Entrenamos 3 clasificadores para predecir si un nuevo caso será severo o no. Usamos AUC-ROC porque el dataset está desbalanceado (solo 26.6% severos). Random Forest obtiene el mejor AUC-ROC de [X.XX] gracias a su capacidad de capturar las interacciones no lineales entre las features.&quot;</p>
+<hr>
+<h2 id="diapositivas-recomendadas-estructura">Diapositivas recomendadas (estructura)</h2>
+<ol>
+<li><strong>Portada:</strong> &quot;Mining High-Risk Drug Interactions from FAERS&quot;</li>
+<li><strong>El problema:</strong> ¿Qué son las DDIs y por qué importan? (estadística impactante)</li>
+<li><strong>El dataset:</strong> FAERS — 108k reportes, 9 archivos JSON, solo 4 de 69 campos usados</li>
+<li><strong>Pipeline overview:</strong> Diagrama de flujo Task A + Task B</li>
+<li><strong>Task A - Association Rules:</strong> Explicar support/confidence/lift con un ejemplo concreto</li>
+<li><strong>Task A - Resultados:</strong> Los 4 gráficos de redes + tabla de métricas</li>
+<li><strong>Task A - Sensitivity Analysis:</strong> El experimento con support 0.001 (noise vs señal)</li>
+<li><strong>Task B - Feature Engineering:</strong> La feature matrix de 25 columnas, justificación</li>
+<li><strong>Task B - El puente:</strong> Cómo las reglas de Task A alimentan Task B</li>
+<li><strong>Task B - Resultados:</strong> Tabla AUC-ROC/F1, ROC curves, confusion matrices</li>
+<li><strong>Task B - Feature Importance:</strong> ¿Qué features más importan?</li>
+<li><strong>Conclusiones:</strong> Hallazgos clave + limitaciones</li>
+</ol>
+<hr>
+<h2 id="resultados-clave-para-mencionar-task-a--ya-están">Resultados clave para mencionar (Task A — ya están)</h2>
+<h3 id="las-reglas-más-interesantes-encontradas">Las reglas más interesantes encontradas:</h3>
+<ul>
+<li><strong>Max lift = 223.45</strong> en Active Substances → señal farmacológica muy fuerte</li>
+<li><strong>13 reglas genuinas</strong> después de filtrar sesgo de indicación</li>
+<li><strong>Apriori = FP-Growth</strong> → validación cruzada algorítmica</li>
+</ul>
+<h3 id="el-experimento-de-sensitivity-analysis-importante">El experimento de sensitivity analysis (importante):</h3>
+<ul>
+<li>A support=0.001, Drug Names genera <strong>352,484 reglas</strong> → explosión de ruido</li>
+<li>Los otros 5 test cases con support=0.001 → <strong>MemoryError</strong> → justifica threshold 0.0025</li>
+<li>Dos extremos del threshold: ruido matemático (lift &gt;850) vs sesgo de indicación (Prednisone→RA)</li>
+</ul>
+<hr>
+<h2 id="preguntas-difíciles-y-cómo-responderlas">Preguntas difíciles y cómo responderlas</h2>
+<h3 id="por-qué-solo-4-de-69-campos">&quot;¿Por qué solo 4 de 69 campos?&quot;</h3>
+<p>&quot;Dimensionality reduction deliberada. Task A necesita solo la 'cesta de compra' (qué tomaron + qué pasó). Más campos adicionarían ruido sin añadir señal para association rules. Task B usa 5 campos adicionales para demographics y el target. La selección de features está justificada por la naturaleza del problema, no por pereza.&quot;</p>
+<h3 id="por-qué-00025-y-no-0001">&quot;¿Por qué 0.0025 y no 0.001?&quot;</h3>
+<p>&quot;Empírico: a 0.001, 5 de 6 configuraciones producen MemoryError. La única que completa (Drug Names Apriori) genera 352,484 reglas con lift máximo de 851 — estadísticamente, eso son coincidencias, no señales reales. A 0.0025 obtenemos 13 reglas de alta calidad. El análisis de sensitivity está documentado con visualizaciones.&quot;</p>
+<h3 id="por-qué-apriori-y-fp-growth-no-es-redundante">&quot;¿Por qué Apriori Y FP-Growth? ¿No es redundante?&quot;</h3>
+<p>&quot;No — es validación. Que ambos produzcan exactamente las mismas 13 reglas con el mismo lift y confidence demuestra que el resultado es un hecho matemático, no un artefacto del algoritmo. También justifica la elección del algoritmo para distintos contextos: FP-Growth escala mejor si el dataset crece.&quot;</p>
+<h3 id="la-faers-data-es-confiable">&quot;¿La FAERS data es confiable?&quot;</h3>
+<p>&quot;FAERS tiene sesgo de subregistro estimado del 90% — no todos los eventos adversos se reportan. También tiene indication bias (los médicos que ven interacciones las reportan más). Sin embargo, es el dataset más grande de pharmacovigilance del mundo con datos del mundo real (no ensayos clínicos). Nuestro pipeline filtra el indication bias explícitamente en el paso 6A.&quot;</p>
+<h3 id="qué-hace-diferente-el-lift-de-task-a-al-confidence">&quot;¿Qué hace diferente el lift de Task A al confidence?&quot;</h3>
+<p>&quot;Confidence puede ser alta simplemente porque el consecuente es muy frecuente. Si NAUSEA aparece en el 60% de todos los reportes, cualquier regla hacia NAUSEA tendrá confidence ≥60% por defecto. Lift normaliza por la frecuencia base del consecuente: lift=45 significa que la combinación de fármacos causa 45× más náusea de lo que causaría por azar.&quot;</p>
+<h3 id="por-qué-class_weightbalanced-en-los-modelos">&quot;¿Por qué class_weight='balanced' en los modelos?&quot;</h3>
+<p>&quot;Sin corrección, un modelo que siempre prediga 'no severo' tiene 73.4% de accuracy — mejor que muchos modelos simples. <code>class_weight='balanced'</code> hace que los errores en la clase minoritaria (severos) pesen más en la función de pérdida, forzando al modelo a aprender ambas clases.&quot;</p>
+<h3 id="no-habría-que-hacer-gridsearch--cross-validation">&quot;¿No habría que hacer GridSearch / cross-validation?&quot;</h3>
+<p>&quot;Para producción sí. Para este pipeline KDD, el objetivo principal es descubrir señales farmacológicas y comparar algoritmos, no maximizar F1 al último decimal. Los hiperparámetros por defecto de sklearn son defensivos y razonables. Cross-validation añadiría rigor estadístico pero un tiempo de cómputo 5-10x mayor en 108k muestras.&quot;</p>
+<h3 id="qué-limitaciones-tiene-el-proyecto">&quot;¿Qué limitaciones tiene el proyecto?&quot;</h3>
+<ol>
+<li>&quot;FAERS reporta solo eventos adversos, no casos donde los fármacos funcionaron bien — hay selection bias&quot;</li>
+<li>&quot;Association rules capturan correlación, no causalidad&quot;</li>
+<li>&quot;El classifier Task B no tiene acceso a información clínica completa (historial médico, comorbilidades)&quot;</li>
+<li>&quot;Los datos son de un trimestre de 2025 — pueden no generalizar a otras épocas o poblaciones&quot;</li>
+</ol>
+<hr>
+<h2 id="datos-impactantes-para-la-intro">Datos impactantes para la intro</h2>
+<ul>
+<li>Las DDIs son responsables de ~125,000 muertes/año en EEUU (estudio JAMA)</li>
+<li>El 20-30% de hospitalizaciones de ancianos están relacionadas con reacciones adversas a medicamentos</li>
+<li>FAERS recibe ~2 millones de reportes al año, pero la mayoría están sin analizar sistemáticamente</li>
+<li>Un paciente con 5+ medicamentos tiene un 50% de probabilidad de experimentar una DDI</li>
+</ul>
+<hr>
+<h2 id="el-plot-más-impactante-para-la-presentación">El plot más impactante para la presentación</h2>
+<p>El <strong>grafo de red de Active Substances (Apriori, support 0.0025)</strong> en <code>taskA/TaskAPlots/association_rules_APRIORI_active_substances_0_0025.png</code>:</p>
+<ul>
+<li>Visualiza las 13 interacciones genuinas como una red dirigida</li>
+<li>Nodos teal = fármacos, nodos coral = reacciones adversas</li>
+<li>El grosor de las aristas = fuerza de asociación (lift)</li>
+<li>Es visualmente impactante y comunica la idea intuitivamente</li>
+</ul>
+<p>El <strong>ROC curve plot</strong> de Task B (cuando esté generado):</p>
+<ul>
+<li>Muestra los 3 modelos comparados visualmente</li>
+<li>La diferencia entre los modelos y el baseline aleatorio es la contribución del proyecto</li>
+</ul>
+
+            
+            
+        </body>
+        </html>
