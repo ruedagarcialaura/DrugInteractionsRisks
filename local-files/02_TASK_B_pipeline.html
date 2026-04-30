@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>TASK B&colon; Severity Prediction Pipeline</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="task-b-severity-prediction-pipeline">TASK B: Severity Prediction Pipeline</h1>
+<h2 id="clasificación-binaria-de-severidad-de-eventos-adversos">Clasificación Binaria de Severidad de Eventos Adversos</h2>
+<hr>
+<h2 id="qué-hace-task-b">¿Qué hace Task B?</h2>
+<p>Task B entrena modelos de clasificación que, dado un nuevo reporte FAERS (paciente + medicamentos), predice si el resultado será <strong>severo</strong> o <strong>no severo</strong>.</p>
+<pre><code>INPUT:  [edad=67, sexo=mujer, toma_methotrexate=1, toma_prednisone=1, 
+         num_farmacos=4, has_drug_reaction_rule=1]
+         
+OUTPUT: is_severe_outcome = 1  (SEVERO — probabilidad 78%)
+</code></pre>
+<p><strong>Target binario:</strong></p>
+<ul>
+<li><code>1 = Severo</code> → el reporte incluye muerte, hospitalización, o evento life-threatening (26.6%)</li>
+<li><code>0 = No severo</code> → otros outcomes (73.4%)</li>
+</ul>
+<hr>
+<h2 id="feature-matrix-las-25-columnas-del-dataset-de-task-b">Feature Matrix: Las 25 columnas del dataset de Task B</h2>
+<p>Producida por <code>2B_preprocessing.py</code> → <code>taskB/task_b_features.parquet</code> (108,000 filas × 25 columnas)</p>
+<h3 id="grupo-a-demographics-4-columnas">Grupo A: Demographics (4 columnas)</h3>
+<table>
+<thead>
+<tr>
+<th>Columna</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>patientonsetage</code></td>
+<td>float</td>
+<td>Edad del paciente en años. ~40% NaN (preservado intencionalmente)</td>
+</tr>
+<tr>
+<td><code>is_male</code></td>
+<td>int8</td>
+<td>1 si es hombre</td>
+</tr>
+<tr>
+<td><code>is_female</code></td>
+<td>int8</td>
+<td>1 si es mujer</td>
+</tr>
+<tr>
+<td><code>sex_unknown</code></td>
+<td>int8</td>
+<td>1 si no se reportó sexo</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Por qué one-hot encoding para sexo:</strong> FAERS usa códigos 1/2/0 que son ordinales artificiales. One-hot elimina esa relación falsa.</p>
+<p><strong>Por qué preservar NaN en edad:</strong> Aplicar imputation ANTES del train/test split sería <strong>data leakage</strong> (filtrar información del test set al entrenamiento). La imputation va DENTRO del pipeline de cada modelo.</p>
+<h3 id="grupo-b-polypharmacy-index-1-columna">Grupo B: Polypharmacy Index (1 columna)</h3>
+<table>
+<thead>
+<tr>
+<th>Columna</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>num_drugs_taken</code></td>
+<td>int</td>
+<td>Número de active substances únicas en el reporte</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Por qué importa:</strong> La polifarmacia es el principal factor de riesgo de DDI. A más fármacos, mayor probabilidad de interacción no deseada.</p>
+<h3 id="grupo-c-top-15-active-substance-flags-15-columnas">Grupo C: Top-15 Active Substance Flags (15 columnas)</h3>
+<p>Variables binarias 0/1 para los 15 fármacos más frecuentes del dataset:</p>
+<ul>
+<li><code>takes_tirzepatide</code> (Ozempic-like, diabetes tipo 2)</li>
+<li><code>takes_dupilumab</code> (eczema, asma)</li>
+<li><code>takes_prednisone</code> (corticoide, antiinflamatorio)</li>
+<li><code>takes_methotrexate</code> (artritis reumatoide, psoriasis)</li>
+<li><code>takes_omalizumab</code> (asma alérgica)</li>
+<li><code>takes_adalimumab</code> (HUMIRA, artritis)</li>
+<li><code>takes_acetaminophen</code> (paracetamol, dolor)</li>
+<li><code>takes_infliximab_dyyb</code> (biosimilar de REMICADE)</li>
+<li><code>takes_infliximab</code> (REMICADE, artritis)</li>
+<li><code>takes_rituximab</code> (linfoma, artritis)</li>
+<li><code>takes_leuprolide_acetate</code> (cáncer próstata/mama)</li>
+<li><code>takes_tocilizumab</code> (artritis reumatoide)</li>
+<li><code>takes_vedolizumab</code> (enfermedad inflamatoria intestinal)</li>
+<li><code>takes_amlodipine_besylate</code> (hipertensión)</li>
+<li><code>takes_cetirizine_hydrochloride</code> (antihistamínico)</li>
+</ul>
+<p><strong>Por qué estos 15:</strong> Son los más frecuentes → mayor exposición poblacional → más señal estadística.</p>
+<h3 id="grupo-d-interaction-risk-features-4-columnas--venidas-de-task-a">Grupo D: Interaction Risk Features (4 columnas) — venidas de Task A</h3>
+<table>
+<thead>
+<tr>
+<th>Columna</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>has_drug_drug_interaction</code></td>
+<td>int8</td>
+<td>1 si el reporte contiene una combinación que matchea una regla drug-drug con lift≥2.0</td>
+</tr>
+<tr>
+<td><code>has_drug_reaction_rule</code></td>
+<td>int8</td>
+<td>1 si los fármacos del reporte matchean una regla cuyo consecuente es una reacción MedDRA</td>
+</tr>
+<tr>
+<td><code>num_matching_rules</code></td>
+<td>int</td>
+<td>Número de reglas de Task A que se activan para este reporte</td>
+</tr>
+<tr>
+<td><code>max_interaction_lift</code></td>
+<td>float</td>
+<td>Mayor lift entre todas las reglas activadas (0.0 si ninguna)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Esto es el puente entre Task A y Task B.</strong> Task A descubrió las reglas; Task B las usa como features.</p>
+<p><code>has_drug_reaction_rule</code> es la feature más fuerte porque conecta directamente combinaciones de fármacos con reacciones MedDRA adversas documentadas.</p>
+<h3 id="grupo-e-target-variable-1-columna">Grupo E: Target Variable (1 columna)</h3>
+<table>
+<thead>
+<tr>
+<th>Columna</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>is_severe_outcome</code></td>
+<td>int8</td>
+<td>1 = severo (muerte/hospitalización/life-threatening), 0 = no severo</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Class balance:</strong></p>
+<ul>
+<li>Severo (1): 28,683 reportes (26.6%)</li>
+<li>No severo (0): 79,317 reportes (73.4%)</li>
+<li>Desbalance moderado → usar <code>class_weight='balanced'</code> y evaluar con AUC-ROC y F1</li>
+</ul>
+<hr>
+<h2 id="los-3-clasificadores-de-task-b">Los 3 clasificadores de Task B</h2>
+<h3 id="1-logistic-regression">1. Logistic Regression</h3>
+<p><strong>Qué es:</strong> Modelo lineal. Aprende pesos para cada feature y calcula una probabilidad con la función sigmoide.
+<strong>Requiere:</strong> Imputation + StandardScaler (sensible a la escala de las variables)
+<strong>Ventaja:</strong> Interpretable (los coeficientes indican qué features importan más)
+<strong>Desventaja:</strong> Solo captura relaciones lineales</p>
+<p>Pipeline:</p>
+<pre><code class="language-python">Pipeline([
+    (<span class="hljs-string">&#x27;imputer&#x27;</span>, SimpleImputer(strategy=<span class="hljs-string">&#x27;median&#x27;</span>)),
+    (<span class="hljs-string">&#x27;scaler&#x27;</span>,  StandardScaler()),
+    (<span class="hljs-string">&#x27;model&#x27;</span>,   LogisticRegression(class_weight=<span class="hljs-string">&#x27;balanced&#x27;</span>, max_iter=<span class="hljs-number">1000</span>))
+])
+</code></pre>
+<h3 id="2-random-forest">2. Random Forest</h3>
+<p><strong>Qué es:</strong> Ensemble de árboles de decisión. Cada árbol vota y la mayoría gana.
+<strong>Requiere:</strong> Solo imputation (no necesita scaling — los árboles son invariantes a la escala)
+<strong>Ventaja:</strong> Maneja no-linealidades, feature importance, robusto a outliers
+<strong>Desventaja:</strong> Menos interpretable que LR, más costoso computacionalmente</p>
+<p>Pipeline:</p>
+<pre><code class="language-python">Pipeline([
+    (<span class="hljs-string">&#x27;imputer&#x27;</span>, SimpleImputer(strategy=<span class="hljs-string">&#x27;median&#x27;</span>)),
+    (<span class="hljs-string">&#x27;model&#x27;</span>,   RandomForestClassifier(n_estimators=<span class="hljs-number">100</span>, class_weight=<span class="hljs-string">&#x27;balanced&#x27;</span>, random_state=<span class="hljs-number">42</span>))
+])
+</code></pre>
+<h3 id="3-svm-support-vector-machine">3. SVM (Support Vector Machine)</h3>
+<p><strong>Qué es:</strong> Encuentra el hiperplano óptimo que separa las clases con máximo margen.
+<strong>Requiere:</strong> Imputation + StandardScaler (el más sensible a la escala de todos)
+<strong>Ventaja:</strong> Muy potente en espacios de alta dimensión, kernel RBF captura no-linealidades
+<strong>Desventaja:</strong> Muy lento en datasets grandes (108k × 25), no produce probabilidades por defecto</p>
+<p>Pipeline:</p>
+<pre><code class="language-python">Pipeline([
+    (<span class="hljs-string">&#x27;imputer&#x27;</span>, SimpleImputer(strategy=<span class="hljs-string">&#x27;median&#x27;</span>)),
+    (<span class="hljs-string">&#x27;scaler&#x27;</span>,  StandardScaler()),
+    (<span class="hljs-string">&#x27;model&#x27;</span>,   SVC(kernel=<span class="hljs-string">&#x27;rbf&#x27;</span>, class_weight=<span class="hljs-string">&#x27;balanced&#x27;</span>, probability=<span class="hljs-literal">True</span>))
+])
+</code></pre>
+<p>⚠️ <strong>SVM en 108k registros puede tardar horas.</strong> Considerar <code>LinearSVC</code> o usar subset para probar.</p>
+<hr>
+<h2 id="métricas-de-evaluación">Métricas de evaluación</h2>
+<p><strong>Por qué NO usar accuracy:</strong></p>
+<ul>
+<li>Con 73.4% de clase 0, un modelo que siempre predice &quot;no severo&quot; tiene 73.4% accuracy</li>
+<li>Accuracy es misleading con clases desbalanceadas</li>
+</ul>
+<p><strong>Métricas correctas:</strong></p>
+<h3 id="auc-roc-area-under-the-roc-curve">AUC-ROC (Area Under the ROC Curve)</h3>
+<ul>
+<li>Mide la capacidad discriminativa del modelo a todos los thresholds</li>
+<li>0.5 = aleatorio, 1.0 = perfecto</li>
+<li><strong>Objetivo realista para este problema: AUC ≥ 0.75</strong></li>
+</ul>
+<h3 id="f1-score-weighted">F1-Score (weighted)</h3>
+<ul>
+<li>Harmonic mean de Precision y Recall</li>
+<li>Weighted average pondera por el número de muestras de cada clase</li>
+<li><strong>Objetivo realista: F1 ≥ 0.70</strong></li>
+</ul>
+<h3 id="classification-report">Classification Report</h3>
+<ul>
+<li>Precision, Recall, F1 por clase</li>
+<li>Muestra el comportamiento diferenciado en clase 0 y clase 1</li>
+</ul>
+<h3 id="confusion-matrix">Confusion Matrix</h3>
+<ul>
+<li>Visualiza True Positives, False Positives, True Negatives, False Negatives</li>
+<li>Los False Negatives (severo predicho como no-severo) son los más peligrosos médicamente</li>
+</ul>
+<hr>
+<h2 id="scripts-de-task-b">Scripts de Task B</h2>
+<h3 id="1b_dataingestionpy--completo-"><code>1B_dataIngestion.py</code> — COMPLETO ✅</h3>
+<p>Lee el ZIP con los 9 JSONs sin extraerlos a disco → <code>consolidated_data.parquet</code></p>
+<h3 id="2b_preprocessingpy--completo-"><code>2B_preprocessing.py</code> — COMPLETO ✅</h3>
+<p>Feature engineering completo → <code>taskB/task_b_features.parquet</code></p>
+<h3 id="1b_preprocessingpy--ignorar"><code>1B_preprocessing.py</code> — IGNORAR</h3>
+<p>Es un skeleton vacío que sirve de documentación del handoff. Supersedido por <code>2B_preprocessing.py</code>.</p>
+<h3 id="3b_modelingpy---falta-hay-que-crearlo-y-ejecutarlo"><code>3B_modeling.py</code> — ❌ FALTA (HAY QUE CREARLO Y EJECUTARLO)</h3>
+<p>Ver fichero <code>03_LO_QUE_FALTA.md</code> para el plan de acción.</p>
+<hr>
+<h2 id="cómo-correr-task-b">Cómo correr Task B</h2>
+<pre><code class="language-bash"><span class="hljs-comment"># Paso 1: Ingestion (si no existe consolidated_data.parquet)</span>
+python taskB/1B_dataIngestion.py <span class="hljs-string">&quot;taskB/9 json files - no tocar.zip&quot;</span>
+
+<span class="hljs-comment"># Paso 2: Feature Engineering (si no existe task_b_features.parquet)</span>
+python taskB/2B_preprocessing.py
+
+<span class="hljs-comment"># Paso 3: Modeling (NECESITA SER CREADO PRIMERO)</span>
+python taskB/3B_modeling.py
+</code></pre>
+<hr>
+<h2 id="notas-arquitectónicas-importantes">Notas arquitectónicas importantes</h2>
+<h3 id="por-qué-no-hay-scaling-global">Por qué no hay scaling global</h3>
+<p>Aplicar <code>StandardScaler</code> al dataset completo antes de split = <strong>data leakage</strong>. Los parámetros del scaler (media y std) estarían calculados con datos del test set, lo que infla artificialmente las métricas. La solución es encapsular <code>StandardScaler</code> DENTRO de <code>sklearn.Pipeline</code>, donde se ajusta SOLO con X_train.</p>
+<h3 id="nan-en-edad-y-por-qué-está-bien">NaN en edad y por qué está bien</h3>
+<p>40% de los reportes FAERS no incluyen edad. FAERS no la exige. Opciones:</p>
+<ul>
+<li>Árboles (Random Forest): pueden manejar NaN si se usa <code>enable_iterative_imputer</code> o <code>SimpleImputer</code> dentro del pipeline</li>
+<li>Modelos lineales/SVM: requieren imputation explícita con la mediana</li>
+</ul>
+<p>No se imputa globalmente porque la mediana global incluiría info del test set.</p>
+
+            
+            
+        </body>
+        </html>

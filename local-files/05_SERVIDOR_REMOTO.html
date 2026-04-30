@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>GU&Iacute;A&colon; EJECUTAR EN EL SERVIDOR REMOTO &lpar;NVIDIA 3060&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="guía-ejecutar-en-el-servidor-remoto-nvidia-3060">GUÍA: EJECUTAR EN EL SERVIDOR REMOTO (NVIDIA 3060)</h1>
+<h2 id="step-by-step-para-completar-task-b">Step-by-step para completar Task B</h2>
+<hr>
+<h2 id="contexto">Contexto</h2>
+<p>El servidor tiene una NVIDIA GeForce RTX 3060. Para Task B (sklearn classifiers) la GPU no se usa directamente — sklearn corre en CPU. Sin embargo, el servidor tiene más RAM y CPU que tu máquina local, lo que es clave para el SVM en 108k muestras.</p>
+<p>Si quisieras usar GPU en el futuro: instalar XGBoost con soporte CUDA o cuML (RAPIDS) para Random Forest en GPU. Por ahora, el pipeline sklearn estándar es suficiente.</p>
+<hr>
+<h2 id="checklist-pre-ejecución">Checklist pre-ejecución</h2>
+<p>Antes de conectar al servidor, asegúrate de tener:</p>
+<ul class="contains-task-list">
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> IP/hostname del servidor</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Credenciales SSH (usuario + contraseña o clave .pem)</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Ruta donde están (o van a estar) los datos en el servidor</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> El ZIP de los 9 JSONs de FAERS en el servidor (o transferirlo)</li>
+</ul>
+<hr>
+<h2 id="flujo-completo">Flujo completo</h2>
+<h3 id="1-conectar-al-servidor">1. Conectar al servidor</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># Opción A: con contraseña</span>
+ssh usuario@IP_DEL_SERVIDOR
+
+<span class="hljs-comment"># Opción B: con clave SSH</span>
+ssh -i /ruta/a/clave.pem usuario@IP_DEL_SERVIDOR
+
+<span class="hljs-comment"># Opción C: si hay un túnel o VPN primero</span>
+<span class="hljs-comment"># (pregúntale a quien tiene el servidor cómo conectarse)</span>
+</code></pre>
+<h3 id="2-preparar-el-entorno-en-el-servidor">2. Preparar el entorno en el servidor</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># Ver si Python está instalado</span>
+python3 --version   <span class="hljs-comment"># debería ser 3.8+</span>
+
+<span class="hljs-comment"># Ver si conda/venv está disponible</span>
+conda --version
+<span class="hljs-comment"># o</span>
+python3 -m venv --version
+
+<span class="hljs-comment"># Crear entorno virtual (recomendado)</span>
+python3 -m venv faers_env
+<span class="hljs-built_in">source</span> faers_env/bin/activate   <span class="hljs-comment"># Linux/Mac</span>
+<span class="hljs-comment"># faers_env\Scripts\activate    # Windows</span>
+
+<span class="hljs-comment"># Instalar dependencias</span>
+pip install numpy pandas scikit-learn matplotlib seaborn mlxtend fastparquet pyarrow tqdm tabulate
+</code></pre>
+<h3 id="3-transferir-el-proyecto-al-servidor">3. Transferir el proyecto al servidor</h3>
+<p><strong>Opción A: Clonar desde GitHub (si el repo es público o tienes acceso)</strong></p>
+<pre><code class="language-bash"><span class="hljs-comment"># En el servidor</span>
+git <span class="hljs-built_in">clone</span> https://github.com/ruedagarcialaura/DrugInteractionsRisks.git
+<span class="hljs-built_in">cd</span> DrugInteractionsRisks
+</code></pre>
+<p><strong>Opción B: SCP desde tu máquina local</strong></p>
+<pre><code class="language-bash"><span class="hljs-comment"># Desde tu Windows (Git Bash o PowerShell)</span>
+scp -r /c/Users/sergi/LocalSpring2025/DrugInteractionsRisks usuario@IP:/home/usuario/
+</code></pre>
+<p><strong>Opción C: rsync (más eficiente, puede reanudar transferencias)</strong></p>
+<pre><code class="language-bash">rsync -avz --exclude=<span class="hljs-string">&#x27;.git&#x27;</span> \
+  /c/Users/sergi/LocalSpring2025/DrugInteractionsRisks/ \
+  usuario@IP:/home/usuario/DrugInteractionsRisks/
+</code></pre>
+<h3 id="4-transferir-el-zip-de-datos-si-no-está-en-el-servidor">4. Transferir el ZIP de datos (si no está en el servidor)</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># Desde tu máquina local — esto puede tardar según el tamaño del ZIP</span>
+scp <span class="hljs-string">&quot;taskB/9 json files - no tocar.zip&quot;</span> usuario@IP:/home/usuario/DrugInteractionsRisks/taskB/
+</code></pre>
+<h3 id="5-ejecutar-el-pipeline-completo">5. Ejecutar el pipeline completo</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># En el servidor, dentro del directorio del proyecto</span>
+<span class="hljs-built_in">cd</span> /home/usuario/DrugInteractionsRisks/
+
+<span class="hljs-comment"># Activar entorno si lo creaste</span>
+<span class="hljs-built_in">source</span> faers_env/bin/activate
+
+<span class="hljs-comment"># PASO 1: Ingestion (si no existe consolidated_data.parquet)</span>
+python taskB/1B_dataIngestion.py <span class="hljs-string">&quot;taskB/9 json files - no tocar.zip&quot;</span>
+<span class="hljs-comment"># Debería imprimir &quot;Total Consolidated Records: 108,000&quot; aprox.</span>
+
+<span class="hljs-comment"># PASO 2: Feature engineering (si no existe taskB/task_b_features.parquet)</span>
+python taskB/2B_preprocessing.py
+<span class="hljs-comment"># Tarda unos minutos en procesar 108k reportes</span>
+
+<span class="hljs-comment"># PASO 3: MODELADO — el script principal de Task B</span>
+python taskB/3B_modeling.py
+<span class="hljs-comment"># Tiempo estimado:</span>
+<span class="hljs-comment">#   Logistic Regression: 2-5 minutos</span>
+<span class="hljs-comment">#   Random Forest:       5-15 minutos  </span>
+<span class="hljs-comment">#   SVM (LinearSVC):     5-10 minutos</span>
+<span class="hljs-comment">#   TOTAL: ~30 minutos</span>
+</code></pre>
+<h3 id="6-monitorear-el-progreso">6. Monitorear el progreso</h3>
+<p>Para dejar corriendo en background y poder cerrar SSH:</p>
+<pre><code class="language-bash"><span class="hljs-comment"># Opción A: nohup (el proceso sigue aunque cierres la sesión SSH)</span>
+<span class="hljs-built_in">nohup</span> python taskB/3B_modeling.py &gt; output.log 2&gt;&amp;1 &amp;
+<span class="hljs-built_in">echo</span> $!  <span class="hljs-comment"># muestra el PID del proceso</span>
+
+<span class="hljs-comment"># Monitorear el log en tiempo real:</span>
+<span class="hljs-built_in">tail</span> -f output.log
+
+<span class="hljs-comment"># Ver si sigue corriendo:</span>
+ps aux | grep 3B_modeling
+
+<span class="hljs-comment"># Opción B: screen (más cómodo)</span>
+screen -S modeling
+python taskB/3B_modeling.py
+<span class="hljs-comment"># Para desconectarte sin matar el proceso: Ctrl+A, luego D</span>
+<span class="hljs-comment"># Para reconectar: screen -r modeling</span>
+</code></pre>
+<h3 id="7-recuperar-los-resultados">7. Recuperar los resultados</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># Desde tu máquina local, después de que termine</span>
+scp -r usuario@IP:/home/usuario/DrugInteractionsRisks/taskB/TaskBPlots/ ./taskB/
+scp usuario@IP:/home/usuario/DrugInteractionsRisks/taskB/task_b_evaluation.csv ./taskB/
+</code></pre>
+<hr>
+<h2 id="si-hay-problemas-de-memoria-con-el-svm">Si hay problemas de memoria con el SVM</h2>
+<p>El script <code>3B_modeling.py</code> usa <code>LinearSVC</code> por defecto (más rápido). Si aun así hay problemas:</p>
+<pre><code class="language-bash"><span class="hljs-comment"># Editar 3B_modeling.py para reducir dataset de entrenamiento:</span>
+<span class="hljs-comment"># Cambiar el parámetro --sample-size al correr el script</span>
+python taskB/3B_modeling.py --quick-mode
+</code></pre>
+<p>El flag <code>--quick-mode</code> entrena con 20k muestras para ver resultados rápido.</p>
+<hr>
+<h2 id="verificación-rápida-qué-ficheros-deberían-existir-después-de-correr-todo">Verificación rápida: ¿qué ficheros deberían existir después de correr todo?</h2>
+<pre><code>taskB/
+├── task_b_features.parquet        ← después de 2B_preprocessing.py
+├── TaskBPlots/
+│   ├── confusion_matrices.png     ← después de 3B_modeling.py
+│   ├── roc_curves.png             ← después de 3B_modeling.py
+│   └── feature_importance_rf.png  ← después de 3B_modeling.py
+└── task_b_evaluation.csv          ← tabla comparativa de los 3 modelos
+</code></pre>
+<hr>
+<h2 id="troubleshooting-común">Troubleshooting común</h2>
+<h3 id="error-no-module-named-mlxtend">Error: &quot;No module named mlxtend&quot;</h3>
+<pre><code class="language-bash">pip install mlxtend
+</code></pre>
+<h3 id="error-consolidated_dataparquet-not-found">Error: &quot;consolidated_data.parquet not found&quot;</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># Asegúrate de correr desde la raíz del proyecto</span>
+<span class="hljs-built_in">cd</span> /home/usuario/DrugInteractionsRisks/
+python taskB/1B_dataIngestion.py <span class="hljs-string">&quot;taskB/9 json files - no tocar.zip&quot;</span>
+</code></pre>
+<h3 id="error-task_b_featuresparquet-not-found">Error: &quot;task_b_features.parquet not found&quot;</h3>
+<pre><code class="language-bash">python taskB/2B_preprocessing.py
+</code></pre>
+<h3 id="error-de-memoria-durante-svm">Error de memoria durante SVM</h3>
+<p>El script ya usa LinearSVC que escala mejor. Si sigue fallando, reducir con <code>--quick-mode</code>.</p>
+<h3 id="svm-tarda-demasiado">SVM tarda demasiado</h3>
+<p>LinearSVC debería terminar en &lt;10 minutos. Si tarda más, cancela (Ctrl+C) y comenta el bloque de SVM en el script. Logistic Regression + Random Forest ya son suficiente para la presentación.</p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

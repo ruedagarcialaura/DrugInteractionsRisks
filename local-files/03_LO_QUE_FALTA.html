@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>PLAN FINAL DE EJECUCI&Oacute;N</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="plan-final-de-ejecución">PLAN FINAL DE EJECUCIÓN</h1>
+<h2 id="lo-que-hay-lo-que-falta-y-el-orden-exacto-para-completar-task-b">Lo que hay, lo que falta, y el orden exacto para completar Task B</h2>
+<hr>
+<h2 id="revisión-crítica-del-código--bugs-encontrados-y-arreglados">REVISIÓN CRÍTICA DEL CÓDIGO — Bugs encontrados y arreglados</h2>
+<h3 id="bug-1-arreglado-filtered_association_rules-no-existe">Bug 1 (ARREGLADO): <code>filtered_association_rules/</code> no existe</h3>
+<p><code>2B_preprocessing.py</code> necesita <code>taskA/filtered_*.csv</code> para construir las features de interacción (<code>has_drug_reaction_rule</code>, etc.). Sin ellas, esas 4 columnas serán todas <strong>cero</strong> — el puente Task A→Task B queda roto.</p>
+<p><strong>Solución:</strong> El notebook (<code>TaskB_notebook.ipynb</code>) regenera automáticamente las reglas filtradas usando los encoded parquets que <strong>sí están en el repo</strong>, corriendo <code>4A_APriori.py</code> + <code>6A_FilterTrueInteractions.py</code> antes de llamar a <code>2B_preprocessing.py</code>.</p>
+<h3 id="bug-2-arreglado-quick_mode-sampling-en-3b_modelingpy">Bug 2 (ARREGLADO): <code>quick_mode</code> sampling en <code>3B_modeling.py</code></h3>
+<p>El código original usaba <code>.groupby().apply()</code> con MultiIndex — deprecado en pandas 2.x y con comportamiento inconsistente. Reemplazado por <code>StratifiedShuffleSplit</code>.</p>
+<h3 id="bug-3-arreglado-import-no-usado-en-3b_modelingpy">Bug 3 (ARREGLADO): Import no usado en <code>3B_modeling.py</code></h3>
+<p><code>import matplotlib.gridspec as gridspec</code> estaba importado pero no se usaba. Eliminado.</p>
+<hr>
+<h2 id="estado-actual-de-los-ficheros-data-no-están-en-git--git-ignored">Estado actual de los ficheros DATA (no están en git — git-ignored)</h2>
+<table>
+<thead>
+<tr>
+<th>Fichero</th>
+<th>¿Existe?</th>
+<th>Cómo generarlo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>taskA/active_substances_encoded.parquet</code></td>
+<td>✅ SÍ (en repo)</td>
+<td>Ya está</td>
+</tr>
+<tr>
+<td><code>taskA/drug_names_encoded.parquet</code></td>
+<td>✅ SÍ (en repo)</td>
+<td>Ya está</td>
+</tr>
+<tr>
+<td><code>taskA/association_rules/*.csv</code></td>
+<td>❌ NO</td>
+<td>4A_APriori.py (arranca de encoded parquet)</td>
+</tr>
+<tr>
+<td><code>taskA/filtered_association_rules/*.csv</code></td>
+<td>❌ NO</td>
+<td>6A_FilterTrueInteractions.py</td>
+</tr>
+<tr>
+<td><code>consolidated_data.parquet</code></td>
+<td>❌ NO</td>
+<td>1B_dataIngestion.py (necesita el ZIP)</td>
+</tr>
+<tr>
+<td><code>taskB/task_b_features.parquet</code></td>
+<td>❌ NO</td>
+<td>2B_preprocessing.py (necesita los 2 de arriba)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="ficheros-creadosarreglados-en-esta-sesión">FICHEROS CREADOS/ARREGLADOS en esta sesión</h2>
+<table>
+<thead>
+<tr>
+<th>Fichero</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>taskB/3B_modeling.py</code></td>
+<td>✅ Creado y bugs arreglados</td>
+</tr>
+<tr>
+<td><code>TaskB_notebook.ipynb</code></td>
+<td>✅ Creado — notebook completo end-to-end</td>
+</tr>
+<tr>
+<td><code>setup_server.sh</code></td>
+<td>✅ Creado — setup de venv en el servidor</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="el-plan-completo--orden-exacto-de-ejecución-en-el-servidor">EL PLAN COMPLETO — Orden exacto de ejecución en el servidor</h2>
+<h3 id="paso-0-conectar-y-hacer-setup-solo-la-primera-vez">PASO 0: Conectar y hacer setup (solo la primera vez)</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># 1. Conectar al servidor</span>
+ssh usuario@IP_SERVIDOR
+
+<span class="hljs-comment"># 2. Clonar el repo (o copiar con scp/rsync)</span>
+git <span class="hljs-built_in">clone</span> https://github.com/ruedagarcialaura/DrugInteractionsRisks.git
+<span class="hljs-built_in">cd</span> DrugInteractionsRisks
+
+<span class="hljs-comment"># 3. Poner el ZIP (tú lo tienes localmente — súbelo desde tu máquina)</span>
+<span class="hljs-comment">#    Desde Windows Git Bash, en OTRA terminal:</span>
+scp <span class="hljs-string">&quot;/c/Users/sergi/LocalSpring2025/DrugInteractionsRisks/taskB/9 json files - no tocar.zip&quot;</span> \
+    usuario@IP:~/DrugInteractionsRisks/taskB/
+
+<span class="hljs-comment"># 4. Correr el setup (crea venv + instala todo)</span>
+bash setup_server.sh
+</code></pre>
+<h3 id="paso-1-activar-el-entorno">PASO 1: Activar el entorno</h3>
+<pre><code class="language-bash"><span class="hljs-built_in">source</span> faers_env/bin/activate
+<span class="hljs-comment"># Confirmar:</span>
+<span class="hljs-built_in">which</span> python    <span class="hljs-comment"># debe apuntar a faers_env/bin/python</span>
+</code></pre>
+<h3 id="paso-2-ejecutar-el-notebook-modo-no-interactivo--recomendado-para-el-servidor">PASO 2: Ejecutar el notebook (modo no-interactivo — recomendado para el servidor)</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># Este comando corre el notebook completo y guarda los outputs (plots incluidos)</span>
+<span class="hljs-comment"># Timeout de 2 horas por si el SVM tarda</span>
+<span class="hljs-built_in">nohup</span> jupyter nbconvert \
+  --to notebook \
+  --execute TaskB_notebook.ipynb \
+  --output TaskB_notebook_EXECUTED.ipynb \
+  --ExecutePreprocessor.<span class="hljs-built_in">timeout</span>=7200 \
+  &gt; notebook_run.log 2&gt;&amp;1 &amp;
+
+<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;PID: $!&quot;</span>
+<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Monitorear con: tail -f notebook_run.log&quot;</span>
+</code></pre>
+<h3 id="paso-3-alternativa-interactiva-jupyter-lab-con-port-forwarding">PASO 3 (Alternativa interactiva): Jupyter Lab con port forwarding</h3>
+<p>Si prefieres ver el notebook ejecutándose en tiempo real desde tu browser:</p>
+<pre><code class="language-bash"><span class="hljs-comment"># En el SERVIDOR:</span>
+jupyter lab --no-browser --port=8888
+
+<span class="hljs-comment"># En tu máquina LOCAL (otra terminal):</span>
+ssh -L 8888:localhost:8888 usuario@IP
+
+<span class="hljs-comment"># En tu browser:</span>
+<span class="hljs-comment"># http://localhost:8888</span>
+<span class="hljs-comment"># Abre TaskB_notebook.ipynb y corre celda a celda</span>
+</code></pre>
+<h3 id="paso-4-recoger-los-resultados">PASO 4: Recoger los resultados</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># Desde tu máquina local, cuando el notebook haya terminado:</span>
+scp usuario@IP:~/DrugInteractionsRisks/TaskB_notebook_EXECUTED.ipynb ./
+scp -r usuario@IP:~/DrugInteractionsRisks/taskB/TaskBPlots/ ./taskB/
+scp usuario@IP:~/DrugInteractionsRisks/taskB/task_b_evaluation.csv ./taskB/
+</code></pre>
+<p>Abre <code>TaskB_notebook_EXECUTED.ipynb</code> localmente — tiene todos los plots embebidos.</p>
+<hr>
+<h2 id="qué-hace-el-notebook-exactamente">Qué hace el notebook exactamente</h2>
+<p>El notebook <code>TaskB_notebook.ipynb</code> hace todo de forma inteligente:</p>
+<pre><code>Celda 1: Setup de imports + verifica que estamos en el directorio correcto
+Celda 2: Configura paths y crea carpeta de outputs
+
+FASE 0: Dependency check — muestra qué existe y qué falta
+FASE 1: Genera filtered rules si no existen (corre 4A + 6A usando encoded parquets)
+FASE 2: Data ingestion si no existe consolidated_data.parquet (corre 1B desde ZIP)
+FASE 3: Feature engineering si no existe task_b_features.parquet (corre 2B)
+FASE 4: EDA — class balance, distribuciones, estadísticas de interaction features
+FASE 5: Train/test split estratificado
+FASE 6: Entrena los 3 modelos (Logistic Regression, Random Forest, Linear SVM)
+FASE 7: Plots inline — ROC curves, confusion matrices, feature importance, LR coefficients
+FASE 8: Tabla comparativa con highlight del mejor modelo
+FASE 9: Conclusiones
+</code></pre>
+<hr>
+<h2 id="tiempo-estimado-de-ejecución-servidor-con-cpu-decente">Tiempo estimado de ejecución (servidor con CPU decente)</h2>
+<table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Tiempo estimado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FASE 1: Generar reglas filtradas (4A + 6A)</td>
+<td>5-15 min</td>
+</tr>
+<tr>
+<td>FASE 2: Data ingestion (1B)</td>
+<td>2-5 min</td>
+</tr>
+<tr>
+<td>FASE 3: Feature engineering (2B)</td>
+<td>5-10 min</td>
+</tr>
+<tr>
+<td>FASE 6a: Logistic Regression</td>
+<td>2-5 min</td>
+</tr>
+<tr>
+<td>FASE 6b: Random Forest (100 trees, n_jobs=-1)</td>
+<td>5-15 min</td>
+</tr>
+<tr>
+<td>FASE 6c: Linear SVM (CalibratedCV cv=3)</td>
+<td>10-20 min</td>
+</tr>
+<tr>
+<td>TOTAL</td>
+<td>~30-70 min</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="checklist-final">CHECKLIST FINAL</h2>
+<ul class="contains-task-list">
+<li class="task-list-item enabled"><input class="task-list-item-checkbox" checked=""type="checkbox"> <code>taskB/3B_modeling.py</code> — creado y bugs arreglados</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox" checked=""type="checkbox"> <code>TaskB_notebook.ipynb</code> — creado, end-to-end, incluyendo generación de filtered rules</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox" checked=""type="checkbox"> <code>setup_server.sh</code> — setup de venv completo</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Poner el ZIP en el servidor en: <code>taskB/9 json files - no tocar.zip</code></li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Correr <code>bash setup_server.sh</code> en el servidor</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Correr el notebook (modo nbconvert o Jupyter Lab)</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Descargar <code>TaskB_notebook_EXECUTED.ipynb</code> y los plots</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Añadir resultados al <code>readme.md</code></li>
+</ul>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

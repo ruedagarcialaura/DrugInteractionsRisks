@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>TASK A&colon; Association Rule Mining Pipeline</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="task-a-association-rule-mining-pipeline">TASK A: Association Rule Mining Pipeline</h1>
+<h2 id="descubrimiento-de-drug-drug-interactions">Descubrimiento de Drug-Drug Interactions</h2>
+<hr>
+<h2 id="qué-hace-task-a">¿Qué hace Task A?</h2>
+<p>Task A convierte los reportes FAERS (listas de fármacos + reacciones) en <strong>reglas de asociación estadísticas</strong>:</p>
+<pre><code>{DOXORUBICIN, CYCLOPHOSPHAMIDE} → {NAUSEA}
+  antecedente (2 fármacos)         consecuente (reacción)
+  support=0.003, confidence=0.85, lift=45.2
+</code></pre>
+<p>Esto significa: &quot;Cuando un paciente toma DOXORUBICIN + CYCLOPHOSPHAMIDE juntos, hay un 85% de probabilidad de que tenga NAUSEA, y esa combinación produce náuseas 45x más de lo esperado por azar&quot;.</p>
+<hr>
+<h2 id="las-3-métricas-clave-memorizarlas-para-la-presentación">Las 3 métricas clave (memorizarlas para la presentación)</h2>
+<h3 id="support-soporte">Support (Soporte)</h3>
+<blockquote>
+<p>&quot;¿Con qué frecuencia aparece esta regla en el dataset?&quot;</p>
+</blockquote>
+<pre><code>support({A,B} → {C}) = P(A ∩ B ∩ C) = casos con A+B+C / total reportes
+</code></pre>
+<ul>
+<li>Si support = 0.0025 → aparece en el 0.25% de los 108k reportes = ~270 casos</li>
+<li><strong>Muy bajo</strong> → podría ser ruido estadístico</li>
+<li><strong>Demasiado alto</strong> → los fármacos son muy comunes, la regla es obvia</li>
+</ul>
+<h3 id="confidence-confianza">Confidence (Confianza)</h3>
+<blockquote>
+<p>&quot;Dado que tiene estos fármacos, ¿qué probabilidad hay de la reacción?&quot;</p>
+</blockquote>
+<pre><code>confidence({A,B} → {C}) = P(C | A,B) = support(A,B,C) / support(A,B)
+</code></pre>
+<ul>
+<li>Mide la fiabilidad predictiva de la regla</li>
+</ul>
+<h3 id="lift-elevación--el-más-importante-para-ddi">Lift (Elevación) — el más importante para DDI</h3>
+<blockquote>
+<p>&quot;¿La combinación causa más reacción de lo que causarían los fármacos por separado?&quot;</p>
+</blockquote>
+<pre><code>lift({A,B} → {C}) = confidence({A,B} → {C}) / support(C)
+</code></pre>
+<ul>
+<li><code>lift = 1.0</code> → la combinación no añade riesgo extra (independientes)</li>
+<li><code>lift &gt; 1.0</code> → la combinación SÍ añade riesgo (interacción real)</li>
+<li><code>lift = 45</code> → esta combinación produce esa reacción 45x más que por azar</li>
+</ul>
+<hr>
+<h2 id="el-pipeline-paso-a-paso">El pipeline paso a paso</h2>
+<h3 id="paso-1-data-ingestion-1a_dataingestionpy">Paso 1: Data Ingestion (<code>1A_dataIngestion.py</code>)</h3>
+<p><strong>Input:</strong> Carpeta con 9 archivos JSON (datos FAERS trimestrales)
+<strong>Output:</strong> <code>consolidated_data.parquet</code> (~108,000 filas, 69 columnas)</p>
+<p>Qué hace:</p>
+<ul>
+<li>Lee cada JSON con <code>json.load()</code></li>
+<li>Extrae el array <code>results</code> de cada archivo</li>
+<li>Aplana la estructura nested con <code>pd.json_normalize()</code></li>
+<li>Guarda en Parquet (más eficiente que CSV para datos nested)</li>
+</ul>
+<p>Comprobación: Verifica que hay ≥100,000 registros.</p>
+<hr>
+<h3 id="paso-2-preprocessing-2a_preprocessingpy">Paso 2: Preprocessing (<code>2A_preprocessing.py</code>)</h3>
+<p><strong>Input:</strong> <code>consolidated_data.parquet</code>
+<strong>Output:</strong> <code>task_a_transactions_drug_names.parquet</code> + <code>task_a_transactions_activesubstance.parquet</code></p>
+<p>Qué hace:</p>
+<ul>
+<li><code>df.explode('patient.drug')</code> → convierte cada fármaco de una lista a una fila separada</li>
+<li>Extrae <code>medicinalproduct</code> (nombre comercial) y <code>activesubstancename</code> (nombre genérico)</li>
+<li><code>df.explode('patient.reaction')</code> → mismo proceso con reacciones</li>
+<li><code>groupby('safetyreportid')['drug_name'].apply(list)</code> → reagrupa: un reporte = una fila con lista de fármacos</li>
+</ul>
+<p><strong>Formato transaccional resultante:</strong></p>
+<pre><code>safetyreportid | all_items
+12345678       | ['METHOTREXATE', 'PREDNISONE', 'NAUSEA', 'FATIGUE']
+12345679       | ['ADALIMUMAB', 'RHEUMATOID ARTHRITIS', 'INJECTION SITE PAIN']
+</code></pre>
+<p>Por qué 2 versiones (drug names vs active substances):</p>
+<ul>
+<li>Drug names: nombres comerciales (HUMIRA, ENBREL, etc.) → más fragmentados</li>
+<li>Active substances: genéricos (ADALIMUMAB) → consolida redundancias de marca</li>
+</ul>
+<p><strong>CONCLUSIÓN del experimento:</strong> Active substances dan mejores reglas (mismo lift, menos ruido).</p>
+<hr>
+<h3 id="paso-3-encoding-3a_encodingpy">Paso 3: Encoding (<code>3A_Encoding.py</code>)</h3>
+<p><strong>Input:</strong> Parquets transaccionales
+<strong>Output:</strong> <code>active_substances_encoded.parquet</code> + <code>drug_names_encoded.parquet</code></p>
+<p>Qué hace:</p>
+<ul>
+<li><code>TransactionEncoder</code> de mlxtend convierte las listas en matrices binarias one-hot:</li>
+</ul>
+<pre><code>         | METHOTREXATE | PREDNISONE | NAUSEA | ADALIMUMAB | ...
+12345678 |      1       |     1      |   1    |     0      | ...
+12345679 |      0       |     0      |   0    |     1      | ...
+</code></pre>
+<ul>
+<li>Filas = reportes, Columnas = fármacos/reacciones únicos</li>
+<li>La matriz resultante tiene ~108k filas × miles de columnas (muy sparse)</li>
+</ul>
+<p>Estos ficheros YA EXISTEN en el repo. ✅</p>
+<hr>
+<h3 id="paso-4a-apriori-4a_aprioripy">Paso 4a: Apriori (<code>4A_APriori.py</code>)</h3>
+<p><strong>Input:</strong> <code>active_substances_encoded.parquet</code>
+<strong>Output:</strong> <code>association_rules/association_rules_APRIORI_active_substances_0_0025.csv</code></p>
+<p>Parámetros clave:</p>
+<ul>
+<li><code>--min_support 0.0025</code> → valor empíricamente validado</li>
+<li><code>min_threshold=1.0</code> para lift → solo reglas con lift ≥ 1 (asociación positiva)</li>
+</ul>
+<p>Limitación del Apriori: genera todos los itemsets frecuentes candidatos (costoso en memoria). A support=0.001 → MemoryError en casi todos los casos.</p>
+<hr>
+<h3 id="paso-4b-fp-growth-5a_fpgrowthpy">Paso 4b: FP-Growth (<code>5A_FPGrowth.py</code>)</h3>
+<p><strong>Input:</strong> <code>active_substances_encoded.parquet</code>
+<strong>Output:</strong> <code>association_rules/association_rules_FP_GROWTH_active_substances_0_0025.csv</code></p>
+<p>Ventaja vs Apriori:</p>
+<ul>
+<li>Usa un árbol FP-Tree comprimido → mucho más eficiente en memoria</li>
+<li>Mismos resultados matemáticos que Apriori al mismo threshold</li>
+</ul>
+<p>Resultado experimental: A support=0.0025, <strong>ambos algoritmos producen exactamente las mismas 13 reglas</strong>. Esto valida la correctitud del pipeline.</p>
+<hr>
+<h3 id="paso-5-filtrado-6a_filtertrueinteractionspy">Paso 5: Filtrado (<code>6A_FilterTrueInteractions.py</code>)</h3>
+<p><strong>Input:</strong> CSV de reglas raw
+<strong>Output:</strong> <code>filtered_association_rules/filtered_*.csv</code></p>
+<p>Problema que resuelve: Las reglas incluyen &quot;ruido de indicación&quot; (indication bias):</p>
+<ul>
+<li>Regla: <code>{METHOTREXATE} → {RHEUMATOID ARTHRITIS}</code> → esto NO es un efecto adverso, es la indicación terapéutica</li>
+<li>Regla: <code>{HUMIRA} → {RHEUMATOID ARTHRITIS}</code> → igual, sesgo de indicación</li>
+</ul>
+<p>Filtros aplicados:</p>
+<ol>
+<li>Elimina consecuentes que son términos de &quot;indicación&quot; (RHEUMATOID ARTHRITIS, PSORIASIS, DIABETES...)</li>
+<li>Solo mantiene reglas con ≥2 ítems en el antecedente (combinaciones de fármacos)</li>
+<li>Ordena por lift descendente</li>
+</ol>
+<p>Resultado: De ~miles de reglas raw → 13 reglas genuinas de DDI.</p>
+<hr>
+<h3 id="paso-6-visualización-7a_analysisplotspy">Paso 6: Visualización (<code>7A_AnalysisPlots.py</code>)</h3>
+<p><strong>Output:</strong> Grafos de red en <code>TaskAPlots/*.png</code></p>
+<p>Diseño visual:</p>
+<ul>
+<li>Nodos <strong>teal/cyan</strong> = fármacos o combinaciones</li>
+<li>Nodos <strong>coral/rojo</strong> = reacciones adversas</li>
+<li>Grosor de arista = fuerza de asociación (lift)</li>
+<li>Layout spring con k=2 para separar nodos</li>
+</ul>
+<hr>
+<h3 id="paso-7-métricas-8a_generatemetricstablepy">Paso 7: Métricas (<code>8A_GenerateMetricsTable.py</code>)</h3>
+<p><strong>Output:</strong> <code>evaluation/final_metrics_table.csv</code> + tabla Markdown</p>
+<p>Métricas calculadas por configuración:</p>
+<ul>
+<li>Total Rules Found</li>
+<li>Max Lift</li>
+<li>Avg Confidence</li>
+<li>Unique Reactions</li>
+</ul>
+<hr>
+<h2 id="resultados-de-task-a-ya-obtenidos">Resultados de Task A (ya obtenidos)</h2>
+<table>
+<thead>
+<tr>
+<th>Model Configuration</th>
+<th>Total Rules</th>
+<th>Max Lift</th>
+<th>Avg. Confidence</th>
+<th>Unique Reactions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Active Substances (Apriori) - 0.0025</td>
+<td>13</td>
+<td>223.45</td>
+<td>0.6367</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Active Substances (FP-Growth) - 0.0025</td>
+<td>13</td>
+<td>223.45</td>
+<td>0.6367</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Drug Names (Apriori) - 0.0025</td>
+<td>13</td>
+<td>224.13</td>
+<td>0.6367</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Drug Names (Apriori) - 0.001</td>
+<td>352,484</td>
+<td>851.08</td>
+<td>0.8300</td>
+<td>6,878</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conclusión clave:</strong> Apriori = FP-Growth en términos de resultados. Active substances = mejor feature space. Support 0.0025 = punto óptimo.</p>
+<hr>
+<h2 id="cómo-correr-task-a-orden-exacto">Cómo correr Task A (orden exacto)</h2>
+<pre><code class="language-bash"><span class="hljs-comment"># Desde la raíz del proyecto</span>
+python taskA/1A_dataIngestion.py &lt;ruta/carpeta/jsons&gt;
+python taskA/2A_preprocessing.py
+python taskA/3A_Encoding.py
+python taskA/4A_APriori.py --file_path taskA/active_substances_encoded.parquet --min_support 0.0025
+python taskA/5A_FPGrowth.py --file_path taskA/active_substances_encoded.parquet --min_support 0.0025
+python taskA/6A_FilterTrueInteractions.py --input taskA/association_rules/association_rules_APRIORI_active_substances_0_0025.csv
+python taskA/7A_AnalysisPlots.py --file taskA/filtered_association_rules/filtered_association_rules_APRIORI_active_substances_0_0025.csv
+python taskA/8A_GenerateMetricsTable.py
+</code></pre>
+<p>NOTA: Los pasos 1-3 ya están ejecutados (los <code>.parquet</code> encoded existen). Solo hace falta correr 4-8 si los CSVs de reglas no existen.</p>
+
+            
+            
+        </body>
+        </html>
