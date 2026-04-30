@@ -4,8 +4,12 @@ pandas
 scikit-learn
 matplotlib
 seaborn
-mlxtend
+mlxtend>=0.22.0
 fastparquet
 pyarrow
 tqdm
 tabulate
+notebook
+jupyterlab
+nbconvert
+ipykernel
