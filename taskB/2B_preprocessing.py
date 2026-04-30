@@ -6,7 +6,9 @@ for binary severity classification.
 Goal: Produce taskB/task_b_features.parquet — one row per report with:
   - Demographics (age, sex)
   - Polypharmacy index (num_drugs_taken)
+  - Reaction count (num_reactions)
   - Top-15 active substance flags
+  - Top-15 MedDRA reaction flags (excluding explicit death terms to avoid leakage)
   - Interaction risk features derived from Task A association rules
   - TARGET: is_severe_outcome
 
@@ -26,6 +28,14 @@ RULES_GLOB   = "taskA/filtered_association_rules/*.csv"
 OUTPUT_PATH  = "taskB/task_b_features.parquet"
 LIFT_THRESHOLD = 2.0
 TOP_N_DRUGS    = 15
+TOP_N_REACTIONS = 15
+
+# Reactions that would directly leak the severity target:
+# seriousnessdeath=1 is often paired with "DEATH" reaction term — exclude.
+EXCLUDE_REACTIONS = {
+    "DEATH", "COMPLETED SUICIDE", "SUDDEN DEATH", "HOMICIDE",
+    "ACCIDENTAL DEATH", "APPARENT DEATH",
+}
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -73,7 +83,6 @@ def _build_target(df):
 
 
 def _build_demographics(df):
-    # json_normalize prefixes nested keys — age lives under 'patient.patientonsetage'
     age = pd.to_numeric(
         df.get('patient.patientonsetage', pd.Series(dtype=str, index=df.index)),
         errors='coerce'
@@ -102,14 +111,12 @@ def _build_drug_features(df, top_n):
     )
     drugs_exp = drugs_exp.dropna(subset=['substance'])
 
-    # Polypharmacy index
     poly = (
         drugs_exp.groupby('safetyreportid')['substance']
         .nunique()
         .rename('num_drugs_taken')
     )
 
-    # Top-N substance boolean flags
     top_drugs = drugs_exp['substance'].value_counts().head(top_n).index.tolist()
     print(f"  Top-{top_n} substances: {top_drugs}")
 
@@ -120,18 +127,61 @@ def _build_drug_features(df, top_n):
         flags[col] = df['safetyreportid'].isin(reports_with).astype('int8').values
 
     flags_df = pd.DataFrame(flags, index=df.index)
-
-    # Drug set per report (for interaction matching)
     drug_sets = drugs_exp.groupby('safetyreportid')['substance'].apply(set)
 
     return poly, flags_df, drug_sets
 
 
+def _build_reaction_features(df, top_n, exclude=None):
+    """
+    Extract top-N MedDRA reaction terms as binary flags + reaction count.
+    Excludes explicit death-indicating reactions to avoid leaking the target.
+    """
+    if exclude is None:
+        exclude = EXCLUDE_REACTIONS
+
+    react_exp = df[['safetyreportid', 'patient.reaction']].explode('patient.reaction').copy()
+
+    def _get_meddra(r):
+        if isinstance(r, dict):
+            return r.get('reactionmeddrapt')
+        return None
+
+    react_exp['reaction'] = (
+        react_exp['patient.reaction']
+        .apply(_get_meddra)
+        .str.upper()
+        .str.strip()
+    )
+    react_exp = react_exp.dropna(subset=['reaction'])
+    react_exp = react_exp[~react_exp['reaction'].isin(exclude)]
+
+    # Count of non-excluded reactions per report
+    num_reactions = (
+        react_exp.groupby('safetyreportid')['reaction']
+        .count()
+        .rename('num_reactions')
+    )
+
+    # Top-N reaction binary flags
+    top_rxns = react_exp['reaction'].value_counts().head(top_n).index.tolist()
+    print(f"  Top-{top_n} reactions: {top_rxns}")
+
+    flags = {}
+    for rxn in top_rxns:
+        col = ('rxn_' + rxn.lower()
+               .replace(' ', '_').replace('-', '_')
+               .replace('/', '_').replace(',', ''))
+        reports_with = set(react_exp.loc[react_exp['reaction'] == rxn, 'safetyreportid'])
+        flags[col] = df['safetyreportid'].isin(reports_with).astype('int8').values
+
+    flags_df = pd.DataFrame(flags, index=df.index)
+    return num_reactions, flags_df
+
+
 def _build_interaction_features(report_ids, drug_sets, rules_glob, lift_threshold):
     """
     Returns a DataFrame with interaction risk features aligned to report_ids.
-    Splits Task A rules into drug-drug and drug-reaction categories using the
-    set of all known active substance names as the discriminator.
     """
     rule_files = glob.glob(rules_glob)
     zeros = pd.DataFrame({
@@ -155,7 +205,6 @@ def _build_interaction_features(report_ids, drug_sets, rules_glob, lift_threshol
     strong['ant_set'] = strong['antecedents'].apply(_parse_frozenset_str)
     strong['con_set'] = strong['consequents'].apply(_parse_frozenset_str)
 
-    # All known active substance names — used to tell drugs apart from MedDRA reactions
     all_known_drugs = set().union(*drug_sets) if len(drug_sets) > 0 else set()
 
     strong['is_drug_drug'] = strong.apply(
@@ -167,8 +216,8 @@ def _build_interaction_features(report_ids, drug_sets, rules_glob, lift_threshol
         axis=1
     )
 
-    dd_ants     = list(strong.loc[strong['is_drug_drug'],     'ant_set'])
-    dr_ants     = list(strong.loc[strong['is_drug_reaction'], 'ant_set'])
+    dd_ants      = list(strong.loc[strong['is_drug_drug'],     'ant_set'])
+    dr_ants      = list(strong.loc[strong['is_drug_reaction'], 'ant_set'])
     all_ant_lift = list(zip(strong['ant_set'], strong['lift']))
 
     print(f"  Strong rules (lift >= {lift_threshold}): {len(strong)}")
@@ -195,11 +244,12 @@ def _build_interaction_features(report_ids, drug_sets, rules_glob, lift_threshol
 # ── Main pipeline ──────────────────────────────────────────────────────────────
 
 def build_features(
-    parquet_path   = PARQUET_PATH,
-    rules_glob     = RULES_GLOB,
-    output_path    = OUTPUT_PATH,
-    lift_threshold = LIFT_THRESHOLD,
-    top_n          = TOP_N_DRUGS,
+    parquet_path    = PARQUET_PATH,
+    rules_glob      = RULES_GLOB,
+    output_path     = OUTPUT_PATH,
+    lift_threshold  = LIFT_THRESHOLD,
+    top_n_drugs     = TOP_N_DRUGS,
+    top_n_reactions = TOP_N_REACTIONS,
 ):
     print(f"Loading {parquet_path}...")
     df = pd.read_parquet(parquet_path)
@@ -217,23 +267,32 @@ def build_features(
 
     # ── C+D. Drug features ─────────────────────────────────────────────────
     print("C+D. Building polypharmacy index and top-substance flags...")
-    poly, flags_df, drug_sets = _build_drug_features(df, top_n)
+    poly, drug_flags, drug_sets = _build_drug_features(df, top_n_drugs)
     print()
 
-    # ── E. Interaction features ────────────────────────────────────────────
-    print("E. Building interaction features from Task A rules...")
+    # ── E. Reaction features ───────────────────────────────────────────────
+    print("E. Building reaction features (MedDRA top terms)...")
+    num_reactions, reaction_flags = _build_reaction_features(df, top_n_reactions)
+    print()
+
+    # ── F. Interaction features ────────────────────────────────────────────
+    print("F. Building interaction features from Task A rules...")
     interactions = _build_interaction_features(
         df['safetyreportid'], drug_sets, rules_glob, lift_threshold
     )
     print()
 
-    # ── F. Assemble & save ─────────────────────────────────────────────────
-    print("F. Assembling final feature matrix...")
+    # ── G. Assemble & save ─────────────────────────────────────────────────
+    print("G. Assembling final feature matrix...")
     base = pd.concat([demo, target.rename('is_severe_outcome')], axis=1)
+
     base['num_drugs_taken'] = poly.reindex(df['safetyreportid'].values).values
     base['num_drugs_taken'] = base['num_drugs_taken'].fillna(0).astype(int)
 
-    result = pd.concat([base, flags_df, interactions], axis=1)
+    base['num_reactions'] = num_reactions.reindex(df['safetyreportid'].values).values
+    base['num_reactions'] = base['num_reactions'].fillna(0).astype(int)
+
+    result = pd.concat([base, drug_flags, reaction_flags, interactions], axis=1)
     result.index = df['safetyreportid']
     result.index.name = 'safetyreportid'
 

@@ -5,6 +5,8 @@ scikit-learn
 matplotlib
 seaborn
 mlxtend>=0.22.0
+xgboost>=2.0.0
+catboost>=1.2.0
 fastparquet
 pyarrow
 tqdm
