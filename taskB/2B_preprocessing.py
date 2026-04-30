@@ -22,7 +22,7 @@ import ast
 import os
 
 PARQUET_PATH = "consolidated_data.parquet"
-RULES_GLOB   = "taskA/filtered_*.csv"
+RULES_GLOB   = "taskA/filtered_association_rules/*.csv"
 OUTPUT_PATH  = "taskB/task_b_features.parquet"
 LIFT_THRESHOLD = 2.0
 TOP_N_DRUGS    = 15

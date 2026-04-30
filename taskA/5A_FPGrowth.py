@@ -50,7 +50,8 @@ def run_fpgrowth_mining(file_path, min_support=0.001):
 
     # --- GENERATING RULES ---
     print("Generating association rules...")
-    rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
+    rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0,
+                              num_itemsets=len(frequent_itemsets))
     rules = rules.sort_values('lift', ascending=False)
     
     print(f"Found {len(rules)} association rules.")
