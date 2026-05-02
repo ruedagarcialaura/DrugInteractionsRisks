@@ -4,8 +4,15 @@ pandas
 scikit-learn
 matplotlib
 seaborn
-mlxtend
+mlxtend>=0.22.0
+xgboost>=2.0.0
+catboost>=1.2.0
 fastparquet
 pyarrow
 tqdm
 tabulate
+optuna>=3.0.0
+notebook
+jupyterlab
+nbconvert
+ipykernel
