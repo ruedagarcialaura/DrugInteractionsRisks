@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Predicting High-Risk Drug Interactions in FAERS — Final Presentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    /* ── Base ───────────────────────────────────────── */
+    .reveal { font-size: 22px; font-family: 'Segoe UI', Arial, sans-serif; }
+    .reveal section { padding: 0 !important; display: flex !important; flex-direction: column !important; }
+
+    /* ── Title bar ──────────────────────────────────── */
+    .slide-top { flex-shrink: 0; padding: 12px 28px 6px; }
+    .slide-top h2 {
+      font-size: 1.35em; font-weight: 800; color: #0d3349;
+      border-bottom: 4px solid #0077b6; padding-bottom: 7px; margin: 0;
+    }
+
+    /* ── Content area ───────────────────────────────── */
+    .slide-body {
+      flex: 1; min-height: 0; overflow: hidden;
+      padding: 0 28px 10px; display: flex; flex-direction: column;
+    }
+
+    /* ── Typography ─────────────────────────────────── */
+    .reveal h1 { font-size: 2.4em; font-weight: 900; color: #0d3349; line-height: 1.1; }
+    .reveal ul  { font-size: 0.86em; line-height: 1.9; margin: 0; padding-left: 20px; }
+    .reveal p   { font-size: 0.84em; margin: 0; }
+
+    /* ── Layout ─────────────────────────────────────── */
+    .two-col   { display: flex; gap: 18px; align-items: flex-start; width: 100%; }
+    .three-col { display: flex; gap: 14px; align-items: flex-start; width: 100%; }
+    .col  { flex: 1; }
+    .col-40 { flex: 0 0 38%; } .col-45 { flex: 0 0 43%; }
+    .col-55 { flex: 0 0 53%; } .col-60 { flex: 0 0 58%; }
+    .col-65 { flex: 0 0 63%; }
+
+    /* ── Boxes ──────────────────────────────────────── */
+    .box-blue   { border: 2px solid #0077b6; padding: 9px 13px; border-radius: 8px; background: #f0f8ff; }
+    .box-red    { border: 2px solid #c0392b; padding: 9px 13px; border-radius: 8px; background: #fff5f5; }
+    .box-green  { border: 2px solid #1a7a4a; padding: 9px 13px; border-radius: 8px; background: #f0fff4; }
+    .box-teal   { border: 2px solid #0096c7; padding: 9px 13px; border-radius: 8px; background: #e0f7fa; }
+    .box-gold   { border-left: 5px solid #e67e22; padding: 8px 12px; background: #fffaf0; border-radius: 0 6px 6px 0; }
+
+    .callout-green {
+      background: #f0fff4; border: 3px solid #1a7a4a; border-radius: 10px;
+      padding: 10px 18px; text-align: center;
+      font-weight: 800; color: #0d4d2a;
+    }
+    .callout-red {
+      background: #fff0f0; border: 3px solid #c0392b; border-radius: 10px;
+      padding: 10px 18px; text-align: center;
+      font-weight: 900; color: #c0392b;
+    }
+    .callout-dark {
+      background: #0d3349; color: #fff; border-radius: 10px;
+      padding: 11px 20px; text-align: center;
+      font-weight: 800;
+    }
+
+    .big-teal  { color: #0096c7; font-weight: 700; }
+    .note      { color: #666; font-size: 0.76em; font-style: italic; }
+    .check     { color: #1a7a4a; font-weight: 700; }
+    .cross     { color: #c0392b; font-weight: 700; }
+    .rise-col  { color: #1a7a4a; font-weight: 700; }
+    .drop-col  { color: #c0392b; font-weight: 700; }
+    .na-col    { color: #999; font-style: italic; }
+
+    /* ── Badges ─────────────────────────────────────── */
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
+    .badge       { background: #0077b6; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.60em; font-weight: 600; }
+    .badge-teal  { background: #0096c7; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.60em; font-weight: 600; }
+    .badge-green { background: #1a7a4a; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.60em; font-weight: 600; }
+    .badge-orange{ background: #e67e22; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.60em; font-weight: 600; }
+    .pillar-bar {
+      background: #f0f4f8; border-radius: 8px; padding: 8px 12px;
+      display: flex; justify-content: center; font-size: 0.65em;
+      color: #0077b6; font-weight: 700;
+    }
+    .pillar-bar span { padding: 0 14px; border-right: 1px solid #bcd; }
+    .pillar-bar span:last-child { border-right: none; }
+
+    /* ── Table ──────────────────────────────────────── */
+    table { font-size: 0.79em; border-collapse: collapse; width: 100%; }
+    th    { background: #0077b6; color: #fff; padding: 7px 10px; text-align: left; }
+    td    { padding: 6px 10px; border: 1px solid #ddd; }
+    tr:nth-child(even) td { background: #f7f9fc; }
+    .hl-row  td { background: #fff3cd !important; font-weight: 700; }
+    .ok-row  td { background: #e0f7e0 !important; font-weight: 700; color: #0d4d2a; }
+
+    /* ── Pipeline ───────────────────────────────────── */
+    .pipeline { display: flex; align-items: center; justify-content: center; gap: 0; }
+    .pipe-box {
+      background: #0077b6; color: #fff; padding: 10px 12px; border-radius: 10px;
+      font-size: 0.74em; font-weight: 700; text-align: center;
+      min-width: 104px; line-height: 1.5;
+    }
+    .pipe-box.orange { background: #e67e22; }
+    .pipe-box.green  { background: #1a7a4a; }
+    .pipe-box.teal   { background: #0096c7; }
+    .pipe-box.purple { background: #7b2d8b; }
+    .pipe-box.navy   { background: #0d3349; }
+    .pipe-arr { font-size: 1.8em; color: #aaa; padding: 0 3px; line-height: 1; }
+
+    /* ── Stat boxes ─────────────────────────────────── */
+    .stat-row { display: flex; gap: 12px; justify-content: center; }
+    .stat-box { text-align: center; padding: 9px 16px; border: 2px solid #c0392b; border-radius: 10px; background: #fff8f8; }
+    .stat-box.blue  { border-color: #0077b6; background: #f0f8ff; }
+    .stat-box.green { border-color: #1a7a4a; background: #f0fff4; }
+    .stat-box.teal  { border-color: #0096c7; background: #e0f7fa; }
+    .stat-num       { font-size: 1.55em; font-weight: 800; color: #c0392b; }
+    .stat-num.blue  { color: #0077b6; }
+    .stat-num.green { color: #1a7a4a; }
+    .stat-lbl       { font-size: 0.62em; color: #555; margin-top: 2px; line-height: 1.4; }
+
+    /* ── Image captions ─────────────────────────────── */
+    .img-cap { font-size: 0.63em; color: #555; margin-top: 3px; text-align: center; }
+
+    /* ── Phase tag ──────────────────────────────────── */
+    .phase-tag {
+      display: inline-block; background: #0d3349; color: #fff;
+      font-size: 0.60em; font-weight: 700; padding: 3px 9px;
+      border-radius: 4px; margin-bottom: 4px;
+    }
+    .hero-meta { color: #444; font-size: 0.84em; line-height: 2.0; margin-top: 10px; }
+    .hero-meta strong { color: #0d3349; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════════ -->
+<section>
+  <div style="display:flex;flex-direction:column;align-items:center;
+        justify-content:center;height:700px;text-align:center;padding:40px 90px;">
+    <div style="background:#0d3349;color:#fff;padding:6px 20px;border-radius:6px;
+          font-size:0.72em;font-weight:700;letter-spacing:.08em;margin-bottom:18px;">
+      CS 584 — Data Mining &nbsp;·&nbsp; IIT Spring 2026
+    </div>
+    <h1 style="margin-bottom:10px;">Predicting High-Risk<br>Drug Interactions in FAERS</h1>
+    <p style="font-size:0.90em;color:#0077b6;font-weight:600;margin-bottom:6px;">
+      Association Rule Mining + Severity Classification on 108,000 real FDA adverse event reports
+    </p>
+    <p style="font-size:0.78em;color:#666;margin-bottom:18px;">
+      KDD Pipeline: Raw JSON &rarr; Drug Interaction Rules &rarr; Severity Prediction
+    </p>
+    <div class="hero-meta">
+      <strong>Sergio Illescas Cabiró &nbsp;·&nbsp; Carmen Vázquez Pérez de la Cruz &nbsp;·&nbsp; Laura Rueda García</strong><br>
+      Illinois Institute of Technology &nbsp;·&nbsp; May 2026
+    </div>
+    <div class="pillar-bar" style="margin-top:16px;width:75%;">
+      <span>Task A: Interaction Mining</span>
+      <span>Task B: Severity Prediction</span>
+      <span>Apriori vs FP-Growth</span>
+      <span>XGBoost · CatBoost · Optuna</span>
+    </div>
+    <div class="badge-row" style="margin-top:10px;">
+      <span class="badge">108k FAERS reports</span>
+      <span class="badge-teal">13 genuine DDI rules &middot; max lift 223</span>
+      <span class="badge-green">AUC-ROC 0.805 &middot; Tuned Ensemble</span>
+      <span class="badge-orange">RTX 3060 GPU training</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 2 — MOTIVATION
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>MOTIVATION: A PREVENTABLE PUBLIC HEALTH PROBLEM</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:22px;padding-top:14px;">
+    <div style="flex:1;display:flex;flex-direction:column;gap:14px;justify-content:center;">
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="stat-num">125K</div>
+          <div class="stat-lbl">US deaths/year<br>linked to DDIs <span class="note">(JAMA)</span></div>
+        </div>
+        <div class="stat-box blue">
+          <div class="stat-num blue">20–30%</div>
+          <div class="stat-lbl">hospital admissions<br>of elderly from<br>adverse drug reactions</div>
+        </div>
+        <div class="stat-box green">
+          <div class="stat-num green">50%</div>
+          <div class="stat-lbl">DDI risk<br>with 5+ concurrent<br>medications</div>
+        </div>
+      </div>
+      <div class="box-gold" style="font-size:0.86em;">
+        <strong>The gap:</strong> The FDA collects millions of adverse event reports per year,
+        but most are analyzed manually. No automated system detects novel DDI signals at scale.
+      </div>
+      <div class="box-blue" style="font-size:0.86em;">
+        <strong>Our approach:</strong> Mine real FAERS reports to
+        (A) discover which drug combinations are statistically dangerous, and
+        (B) predict whether a new patient case will have a severe outcome.
+      </div>
+    </div>
+    <div style="flex:0 0 32%;display:flex;flex-direction:column;gap:12px;justify-content:center;">
+      <div class="box-teal" style="font-size:0.84em;">
+        <strong>What is FAERS?</strong><br>
+        FDA Adverse Event Reporting System — the world's largest pharmacovigilance database.
+        Each report contains: patient demographics, drugs taken, reactions, and outcome severity.
+      </div>
+      <div class="callout-dark" style="font-size:0.84em;">
+        Real-world data. Real patients. Real interactions.<br>The FDA has it — we mine it.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 — DATASET
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>DATASET: 108,000 REAL FDA ADVERSE EVENT REPORTS</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:18px;padding-top:8px;">
+    <div class="col-55" style="display:flex;flex-direction:column;gap:8px;">
+      <img src="../taskB/TaskBPlots/eda_distributions.png" alt="EDA distributions"
+        style="width:100%;border-radius:10px;object-fit:contain;max-height:360px;display:block;">
+      <p class="img-cap">Feature distributions — age has 40% NaN (preserved for per-model imputation),
+        class imbalance 73/27, polypharmacy index</p>
+      <div style="display:flex;gap:8px;">
+        <div class="stat-box green" style="flex:1;padding:7px;">
+          <div class="stat-num green" style="font-size:1.3em;">73.4%</div>
+          <div class="stat-lbl">Non-Severe</div>
+        </div>
+        <div class="stat-box" style="flex:1;padding:7px;">
+          <div class="stat-num" style="font-size:1.3em;">26.6%</div>
+          <div class="stat-lbl">Severe: death /<br>hospitalization /<br>life-threatening</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-45" style="display:flex;flex-direction:column;gap:10px;padding-top:4px;">
+      <div class="box-blue" style="font-size:0.84em;">
+        <strong>Source:</strong> 9 FAERS quarterly JSON files — 108,000 reports<br>
+        <strong>Format:</strong> Deeply nested JSON; <code>activesubstance</code> appears as dict or list
+        across quarters — custom parser handles both formats
+      </div>
+      <table>
+        <thead><tr><th>Field</th><th>Used in</th><th>What it is</th></tr></thead>
+        <tbody>
+          <tr><td><code>safetyreportid</code></td><td>Both</td><td>Transaction ID</td></tr>
+          <tr><td><code>activesubstancename</code></td><td>Both</td><td>Generic drug name</td></tr>
+          <tr><td><code>reactionmeddrapt</code></td><td>Both</td><td>MedDRA adverse reaction term</td></tr>
+          <tr><td><code>patientonsetage / sex</code></td><td>B only</td><td>Demographics</td></tr>
+          <tr class="hl-row"><td><code>seriousnessdeath / hospitalization</code></td><td>B only</td><td>TARGET variable</td></tr>
+        </tbody>
+      </table>
+      <div class="box-gold" style="font-size:0.82em;">
+        Only 5 of 69 fields used — the remaining 64 are administrative (submission dates,
+        country codes). All clinical signal lives in these 5.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 4 — TWO PROBLEMS / PIPELINE OVERVIEW
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>TWO CONNECTED PROBLEMS — ONE PIPELINE</h2></div>
+  <div class="slide-body" style="justify-content:center;gap:16px;">
+    <div class="pipeline">
+      <div class="pipe-box navy">INPUT<br><span style="font-size:0.80em;opacity:0.85;">108k FAERS<br>JSON</span></div>
+      <span class="pipe-arr">&#8594;</span>
+      <div class="pipe-box">TASK A ①<br><span style="font-size:0.80em;opacity:0.9;">Market Basket<br>Transactions</span></div>
+      <span class="pipe-arr">&#8594;</span>
+      <div class="pipe-box teal">TASK A ②<br><span style="font-size:0.80em;opacity:0.9;">Apriori &amp;<br>FP-Growth</span></div>
+      <span class="pipe-arr">&#8594;</span>
+      <div class="pipe-box orange">TASK A ③<br><span style="font-size:0.80em;opacity:0.9;">13 Genuine<br>DDI Rules</span></div>
+      <span class="pipe-arr" style="font-size:2.2em;color:#c0392b;">&#8594;</span>
+      <div class="pipe-box green">BRIDGE ⚡<br><span style="font-size:0.80em;opacity:0.9;">Rules as<br>Features</span></div>
+      <span class="pipe-arr">&#8594;</span>
+      <div class="pipe-box purple">TASK B<br><span style="font-size:0.80em;opacity:0.9;">Severity<br>Classifier</span></div>
+      <span class="pipe-arr">&#8594;</span>
+      <div class="pipe-box" style="background:#1a7a4a;">OUTPUT<br><span style="font-size:0.80em;opacity:0.9;">AUC 0.805<br>Prediction</span></div>
+    </div>
+
+    <div class="three-col" style="gap:16px;margin-top:4px;">
+      <div class="box-teal" style="font-size:0.84em;">
+        <div class="phase-tag">TASK A — UNSUPERVISED</div><br>
+        Each FAERS report is a <em>basket</em>: drugs + reactions as items.
+        We mine co-occurrences to find combos where <strong>lift &gg; 1</strong> —
+        the drug causes that reaction far more than chance.<br><br>
+        <span class="big-teal">Apriori vs FP-Growth</span> — same result validates correctness.
+      </div>
+      <div class="box-blue" style="font-size:0.84em;border-color:#7b2d8b;background:#fdf2ff;">
+        <div class="phase-tag" style="background:#7b2d8b;">TASK B — SUPERVISED</div><br>
+        Given a new patient: demographics + drugs + reactions +
+        <em>Task A flags</em> → predict severe outcome<br>
+        (death / hospitalization / life-threatening).<br><br>
+        <span style="color:#7b2d8b;font-weight:700;">5 classifiers compared</span>:
+        LR · RF · XGBoost · CatBoost · Ensemble
+      </div>
+      <div style="font-size:0.84em;background:#fff3cd;border:2px solid #e67e22;border-radius:8px;padding:9px 13px;">
+        <div class="phase-tag" style="background:#e67e22;">THE BRIDGE ⚡</div><br>
+        The 13 DDI rules from Task A become binary features in Task B —
+        unsupervised mining directly powers supervised prediction.<br><br>
+        <span style="color:#888;font-style:italic;font-size:0.90em;">Which feature ranks #1? → Slide 8</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 5 — TASK A: CONCEPTS
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>TASK A: MARKET BASKET MODEL + 3 KEY METRICS</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:20px;padding-top:10px;">
+    <div class="col-55" style="display:flex;flex-direction:column;gap:12px;">
+      <div class="box-blue" style="font-size:0.86em;">
+        <strong>Market Basket Model</strong><br>
+        Each FAERS report = 1 transaction. Items = drugs + reactions.<br><br>
+        <code style="font-size:0.88em;">{METHOTREXATE, PREDNISONE, NAUSEA, FATIGUE}</code><br><br>
+        We compared two encodings:
+        <ul>
+          <li><strong>Active substances</strong> (generic names) — consolidates brand fragmentation</li>
+          <li>Brand names — more noise, lower quality rules</li>
+        </ul>
+        <span style="color:#0096c7;font-weight:700;">Winner: Active substances</span> — same rules, less noise.
+      </div>
+      <div class="box-gold" style="font-size:0.86em;">
+        <strong>Indication Bias Filter (Step 6A)</strong><br>
+        Raw rules contain false positives like:<br>
+        <code>METHOTREXATE → RHEUMATOID ARTHRITIS</code><br>
+        That's why the drug is <em>prescribed</em>, not an adverse effect.<br>
+        Filter removes all "indication" consequents → <strong>13 genuine DDI signals</strong>.
+      </div>
+    </div>
+    <div class="col-45" style="display:flex;flex-direction:column;gap:12px;padding-top:4px;">
+      <div class="box-teal" style="font-size:0.86em;">
+        <strong>3 Key Metrics — what they mean</strong><br><br>
+        <strong>Support</strong> — how often the combo appears in reports<br>
+        <span style="color:#666;font-size:0.90em;">≥ 0.25% of 108k reports = threshold</span><br><br>
+        <strong>Confidence</strong> — P(reaction | drug combo)<br>
+        <span style="color:#666;font-size:0.90em;">avg 0.637 across our 13 rules</span><br><br>
+        <strong style="color:#c0392b;">Lift</strong> — how much MORE than random chance<br>
+        <span style="color:#666;font-size:0.90em;">Lift = 223 → 223× above baseline rate. This is the key metric.</span>
+      </div>
+      <div class="callout-green" style="font-size:0.84em;">
+        Pipeline: 8A scripts in order<br>
+        <span style="font-weight:400;font-size:0.90em;">Ingest → Preprocess → Encode → Mine → Filter → Visualize → Evaluate</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 6 — SENSITIVITY ANALYSIS
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>TASK A: WHY min_support = 0.0025 — EMPIRICALLY VALIDATED</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:18px;">
+    <div class="col-60" style="display:flex;flex-direction:column;gap:8px;">
+      <img src="../taskA/TaskAPlots/association_rules_APRIORI_drug_names_0_001_top_lift.png"
+        alt="Noisy network at support 0.001"
+        style="width:100%;border-radius:10px;object-fit:contain;max-height:390px;display:block;">
+      <p class="img-cap">support=0.001: 352,484 rules, max lift 851 — statistical noise, not drug signals</p>
+    </div>
+    <div class="col-40" style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
+      <table>
+        <thead><tr><th>Config</th><th>Support</th><th>Outcome</th></tr></thead>
+        <tbody>
+          <tr><td>Active Sub. (Apriori)</td><td>0.001</td><td class="drop-col">MemoryError</td></tr>
+          <tr><td>Active Sub. (FP-Growth)</td><td>0.001</td><td class="drop-col">MemoryError</td></tr>
+          <tr><td>Drug Names (FP-Growth)</td><td>0.001</td><td class="drop-col">MemoryError</td></tr>
+          <tr class="hl-row"><td>Drug Names (Apriori)</td><td>0.001</td><td class="drop-col">352k rules, lift 851</td></tr>
+          <tr class="ok-row"><td><strong>Active Sub. (Apriori)</strong></td><td><strong>0.0025</strong></td><td class="rise-col"><strong>13 rules, lift 223</strong></td></tr>
+          <tr class="ok-row"><td><strong>Active Sub. (FP-Growth)</strong></td><td><strong>0.0025</strong></td><td class="rise-col"><strong>13 rules, lift 223</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="callout-green" style="font-size:0.84em;">
+        0.0025 is the lowest support at which<br>all algorithms terminate AND produce<br>medically interpretable rules.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 7 — TASK A RESULTS
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>TASK A: RESULTS — 13 GENUINE DRUG INTERACTION RULES</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:16px;">
+    <div class="col-45" style="display:flex;flex-direction:column;gap:8px;">
+      <img src="../taskA/TaskAPlots/association_rules_APRIORI_active_substances_0_0025.png"
+        alt="Apriori DDI network"
+        style="width:100%;border-radius:10px;object-fit:contain;max-height:260px;display:block;">
+      <p class="img-cap"><strong>Apriori</strong> — 13 rules · max lift 223.45</p>
+      <img src="../taskA/TaskAPlots/association_rules_FP_GROWTH_active_substances_0_0025.png"
+        alt="FP-Growth DDI network"
+        style="width:100%;border-radius:10px;object-fit:contain;max-height:200px;display:block;">
+      <p class="img-cap"><strong>FP-Growth</strong> — identical 13 rules · validates correctness</p>
+    </div>
+    <div class="col-55" style="display:flex;flex-direction:column;gap:10px;padding-top:4px;">
+      <p style="font-size:0.76em;color:#555;">
+        <span style="color:#0096c7;font-weight:700;">● Teal = drugs</span> &nbsp;·&nbsp;
+        <span style="color:#e67e22;font-weight:700;">● Coral = adverse reactions</span> &nbsp;·&nbsp;
+        Edge thickness ∝ lift
+      </p>
+      <div class="box-teal" style="font-size:0.84em;">
+        <strong>Apriori = FP-Growth: result is a mathematical fact</strong><br>
+        Both algorithms produce identical 13 rules. This cross-validates the pipeline —
+        the result is not an algorithm artifact. FP-Growth scales better as data grows.
+      </div>
+      <div class="box-gold" style="font-size:0.84em;">
+        <strong>Strongest signal:</strong><br>
+        <code>DUPILUMAB + ACCIDENTAL EXPOSURE → SKIN CONTACT</code><br>
+        Lift = <strong>223.45</strong> — this adverse event pattern appears 223× more often than chance.<br>
+        Drug-drug bridge: <code>CYCLOPHOSPHAMIDE + DOXORUBICIN → VINCRISTINE</code> (R-CHOP chemo, lift 162×)</span>
+      </div>
+      <div class="callout-green" style="font-size:0.84em;">
+        From thousands of raw rules → 13 genuine DDI signals<br>after indication-bias filtering
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 8 — THE BRIDGE: TASK A → TASK B
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>THE BRIDGE: TASK A RULES → TASK B FEATURES</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:18px;">
+    <div class="col-60" style="display:flex;flex-direction:column;gap:8px;">
+      <img src="../taskB/TaskBPlots/feature_importance_xgb_tuned.png"
+        alt="XGBoost Feature Importance"
+        style="width:100%;border-radius:10px;object-fit:contain;max-height:420px;display:block;">
+      <p class="img-cap">XGBoost (Optuna-tuned) — Top 25 features by information gain</p>
+    </div>
+    <div class="col-40" style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
+      <div class="box-gold" style="font-size:0.85em;">
+        <strong>How the bridge works:</strong><br>
+        For each patient report, check if their drug combination
+        matches any of the 13 Task A rules (lift ≥ 2.0).<br><br>
+        <code>has_drug_drug_interaction = 1</code> → known high-lift combo<br>
+        <span style="font-size:0.85em;">517 reports flagged — R-CHOP chemo patients</span>
+      </div>
+      <div class="callout-red" style="font-size:0.95em;">
+        Drug-drug rules (R-CHOP)<br>
+        <strong>feed severity prediction</strong><br>
+        <span style="font-size:0.82em;font-weight:400;">CYCLOPHOSPHAMIDE + DOXORUBICIN + VINCRISTINE</span>
+      </div>
+      <div class="box-green" style="font-size:0.84em;">
+        <strong>4 Task A features fed into Task B:</strong>
+        <ul>
+          <li><code>has_drug_drug_interaction</code> — drug combo match</li>
+          <li><code>has_drug_reaction_rule</code> — drug→reaction match</li>
+          <li><code>num_matching_rules</code> — how many rules fire</li>
+          <li><code>max_interaction_lift</code> — strongest rule activated</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 9 — TASK B: FEATURE ENGINEERING + LEAKAGE
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>TASK B: 71 FEATURES — AND A LEAKAGE STORY</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:18px;padding-top:8px;">
+    <div class="col-45" style="display:flex;flex-direction:column;gap:10px;">
+      <table>
+        <thead><tr><th>Feature group</th><th>Count</th></tr></thead>
+        <tbody>
+          <tr><td>Demographics (age, sex)</td><td>4</td></tr>
+          <tr><td>Polypharmacy index</td><td>1</td></tr>
+          <tr><td>Top-15 drug flags (binary)</td><td>15</td></tr>
+          <tr><td>Drug characterization</td><td>2</td></tr>
+          <tr><td>Top-50 MedDRA reaction flags</td><td>50</td></tr>
+          <tr><td>Reporter qualification</td><td>4</td></tr>
+          <tr class="hl-row"><td><strong>Task A interaction features</strong></td><td><strong>4</strong></td></tr>
+          <tr class="ok-row"><td><strong>Total</strong></td><td><strong>80 → 71 after leakage removal</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="box-blue" style="font-size:0.82em;">
+        <strong>Split:</strong> 70% train / 10% val / 20% test (stratified).<br>
+        Val set used only for threshold tuning, never model selection.
+      </div>
+    </div>
+    <div class="col-55" style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
+      <div class="box-red" style="font-size:0.85em;">
+        <strong class="cross">&#10007; Leakage Detected &amp; Removed</strong><br><br>
+        <code>rxn_hospitalisation</code> appeared as the <strong>#2 most important feature</strong>
+        in early XGBoost (10.7% gain).<br><br>
+        On inspection: this MedDRA term directly encodes
+        <code>seriousnesshospitalization=1</code> — which <em>IS</em> the target variable.<br><br>
+        <strong>Confirmation test:</strong> Removed it → AUC dropped 0.805 → 0.796.
+        The drop confirmed the leakage was real.
+      </div>
+      <div class="callout-green" style="font-size:0.85em;">
+        12 death/hospitalization MedDRA terms excluded.<br>
+        <strong>AUC 0.796 = clean baseline.</strong><br>
+        AUC 0.805 (final) = Optuna tuning on top of clean data.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 10 — TASK B: MODELS
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>TASK B: FIVE CLASSIFIERS — BASELINE RESULTS</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:18px;">
+    <div class="col-55" style="display:flex;flex-direction:column;gap:8px;">
+      <img src="../taskB/TaskBPlots/roc_curves_tuned.png" alt="ROC curves"
+        style="width:100%;border-radius:10px;object-fit:contain;max-height:380px;display:block;">
+      <p class="img-cap">ROC curves — all models (tuned shown for reference)
+        &nbsp;·&nbsp; <span style="color:#888;">dashed = random baseline</span></p>
+    </div>
+    <div class="col-45" style="display:flex;flex-direction:column;gap:10px;padding-top:4px;">
+      <table>
+        <thead><tr><th>Model</th><th>AUC-ROC</th><th>F1-severe</th></tr></thead>
+        <tbody>
+          <tr><td>Logistic Regression</td><td>0.752</td><td>0.533</td></tr>
+          <tr><td>Random Forest</td><td>0.792</td><td>0.570</td></tr>
+          <tr><td>XGBoost (GPU, 2.6s)</td><td>0.795</td><td>0.574</td></tr>
+          <tr><td>CatBoost (GPU, 2.5s)</td><td>0.794</td><td>0.574</td></tr>
+          <tr class="hl-row"><td><strong>Voting Ensemble</strong></td><td><strong>0.796</strong></td><td><strong>0.575</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="box-teal" style="font-size:0.83em;">
+        <strong>Why replace SVM?</strong><br>
+        SVM collapsed to all-negative predictions on this imbalanced dataset —
+        AUC ≈ 0.63 even with <code>class_weight='balanced'</code>.
+        XGBoost/CatBoost handle imbalance natively and train in &lt;3s on GPU.
+      </div>
+      <div class="box-gold" style="font-size:0.82em;">
+        <strong>Threshold tuning:</strong> Grid search [0.10–0.70] on val set,
+        maximizing F1-severe. Optimal ≈ 0.51–0.54 (not default 0.5).
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 11 — TASK B: OPTUNA TUNING
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>TASK B: OPTUNA BAYESIAN HYPERPARAMETER SEARCH</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:18px;">
+    <div class="col-55" style="display:flex;flex-direction:column;gap:8px;">
+      <img src="../taskB/TaskBPlots/optuna_history_xgb.png" alt="Optuna XGBoost"
+        style="width:100%;border-radius:10px;object-fit:contain;max-height:200px;display:block;">
+      <p class="img-cap">XGBoost: 100 trials — Bayesian TPE convergence</p>
+      <img src="../taskB/TaskBPlots/optuna_history_catboost.png" alt="Optuna CatBoost"
+        style="width:100%;border-radius:10px;object-fit:contain;max-height:200px;display:block;">
+      <p class="img-cap">CatBoost: 50 trials — convergence</p>
+    </div>
+    <div class="col-45" style="display:flex;flex-direction:column;gap:12px;padding-top:4px;justify-content:center;">
+      <div class="box-blue" style="font-size:0.84em;">
+        <strong>Strategy:</strong> n_estimators ceiling (3000) + early stopping (patience=50).
+        No need to search tree count — just search learning rate, depth, regularization.
+        TPE sampler, <code>seed=42</code>, fully reproducible.
+      </div>
+      <table>
+        <thead><tr><th>Model</th><th>Baseline</th><th>Tuned</th><th>Δ</th></tr></thead>
+        <tbody>
+          <tr class="ok-row"><td>XGBoost ⚡</td><td>0.795</td><td class="rise-col"><strong>0.804</strong></td><td class="rise-col">+0.009</td></tr>
+          <tr class="ok-row"><td>CatBoost ⚡</td><td>0.794</td><td class="rise-col"><strong>0.804</strong></td><td class="rise-col">+0.010</td></tr>
+          <tr class="hl-row"><td><strong>Tuned Ensemble</strong></td><td>0.796</td><td class="rise-col"><strong>0.805</strong></td><td class="rise-col"><strong>+0.009</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="callout-green" style="font-size:0.90em;">
+        RTX 3060 · ~18 min total<br>
+        <strong>AUC 0.796 → 0.805</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 12 — TASK B: EVALUATION
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>TASK B: EVALUATION — CONFUSION MATRICES &amp; PR CURVES</h2></div>
+  <div class="slide-body" style="gap:10px;">
+    <div class="two-col" style="gap:14px;flex:1;min-height:0;">
+      <div style="flex:1;text-align:center;display:flex;flex-direction:column;gap:4px;">
+        <img src="../taskB/TaskBPlots/confusion_matrices.png" alt="Confusion matrices"
+          style="width:100%;border-radius:10px;object-fit:contain;flex:1;min-height:0;display:block;">
+        <p class="img-cap">Normalized confusion matrices — all 5 models. Focus: Tuned Ensemble (rightmost)</p>
+      </div>
+      <div style="flex:1;text-align:center;display:flex;flex-direction:column;gap:4px;">
+        <img src="../taskB/TaskBPlots/pr_curves.png" alt="PR Curves"
+          style="width:100%;border-radius:10px;object-fit:contain;flex:1;min-height:0;display:block;">
+        <p class="img-cap">Precision-Recall curves — more informative than accuracy for imbalanced data</p>
+      </div>
+    </div>
+    <div class="three-col" style="gap:12px;flex-shrink:0;">
+      <div class="box-blue" style="font-size:0.80em;">
+        <strong>Why AUC, not accuracy?</strong><br>
+        Always-predict-"not severe" = 73.4% accuracy. AUC measures ranking ability regardless of imbalance.
+      </div>
+      <div class="box-gold" style="font-size:0.80em;">
+        <strong>Tuned Ensemble: Recall-severe = 0.651</strong><br>
+        False Negatives (missed severe cases) are clinically more dangerous than False Positives.
+      </div>
+      <div class="box-red" style="font-size:0.80em;">
+        <strong>Precision-severe ≈ 0.53</strong><br>
+        Acceptable for a screening tool. Higher precision would be needed for clinical deployment.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 13 — SUMMARY
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>SUMMARY: PROPOSED vs. DELIVERED</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:18px;">
+    <div class="col-55" style="display:flex;flex-direction:column;gap:8px;">
+      <table>
+        <thead><tr><th>Proposal commitment</th><th>Delivered</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>FAERS data &gt;100k rows</td><td>108,000 reports</td><td class="rise-col">&#10003;</td></tr>
+          <tr><td>Apriori + FP-Growth comparison</td><td>Identical 13 rules — mathematical validation</td><td class="rise-col">&#10003;</td></tr>
+          <tr><td>Sensitivity analysis</td><td>0.001→0.0025; MemoryError confirmed combinatorial explosion</td><td class="rise-col">&#10003;</td></tr>
+          <tr><td>Severity classifier (LR + RF)</td><td>5 models including GPU-accelerated boosting</td><td class="rise-col">&#10003;</td></tr>
+          <tr><td>SVM comparison</td><td>SVM collapsed (AUC 0.63) → replaced with XGBoost/CatBoost, justified</td><td class="rise-col">&#10003;</td></tr>
+          <tr><td>AUC-PR + F1 evaluation</td><td>AUC-ROC, AP, F1, Recall, Precision, PR curves, confusion matrices</td><td class="rise-col">&#10003;</td></tr>
+          <tr><td>70/30 holdout</td><td>70/10/20 train/val/test — val used only for threshold tuning</td><td class="rise-col">&#10003;</td></tr>
+          <tr class="ok-row"><td><strong>Not in proposal</strong></td><td><strong>Optuna tuning · GPU · leakage detection · Task A→B bridge</strong></td><td class="rise-col">&#10003; bonus</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-45" style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
+      <div class="callout-green" style="font-size:0.88em;">
+        AUC clean baseline: <strong>0.796</strong><br>
+        Leakage removed: 0.805 → 0.796 (confirmed real)<br>
+        After Optuna: 0.796 → <strong>0.805</strong>
+      </div>
+      <div class="box-green" style="font-size:0.84em;">
+        <strong class="check">&#10003; Key contributions:</strong>
+        <ul>
+          <li>Reproducible KDD pipeline — raw JSON to insights</li>
+          <li>Indication bias filter → 13 genuine DDI rules</li>
+          <li>Data leakage detected and confirmed empirically</li>
+          <li>Task A rules as Task B features — the project's spine</li>
+          <li>Bayesian tuning: +0.009 AUC in 18 min on GPU</li>
+        </ul>
+      </div>
+      <div class="callout-dark" style="font-size:0.84em;">
+        The pipeline delivers more than promised.<br>Every design choice is empirically justified.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 14 — FUTURE WORK & REFERENCES
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>FUTURE WORK &amp; REFERENCES</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:18px;">
+    <div class="col-55" style="display:flex;flex-direction:column;gap:12px;">
+      <div class="box-blue" style="font-size:0.85em;">
+        <strong>Technical next steps:</strong>
+        <ul>
+          <li><strong>Real-time FAERS streaming</strong> — update rules as new quarterly data arrives; detect emerging DDI signals before annual FDA reviews</li>
+          <li><strong>Graph Neural Network</strong> — model drug-reaction relationships as a knowledge graph; handle multi-hop interactions</li>
+          <li><strong>SHAP explanations</strong> — patient-level explainability for clinical deployment ("this case flagged because R-CHOP drug combination has lift=162 for co-prescription severity")</li>
+        </ul>
+      </div>
+      <div class="box-gold" style="font-size:0.84em;">
+        <strong>Deployment vision:</strong> A pharmacist reviews a polypharmacy patient.
+        The system flags high-lift drug combos AND predicts severity probability —
+        a second opinion at scale, not a replacement for clinical judgment.
+      </div>
+    </div>
+    <div class="col-45" style="display:flex;flex-direction:column;gap:10px;">
+      <strong style="font-size:0.84em;">References</strong>
+      <ol style="font-size:0.80em;line-height:2.0;margin:0;">
+        <li><strong>openFDA FAERS API</strong> — open.fda.gov/apis/drug/event/</li>
+        <li><strong>mlxtend</strong> — Raschka, S. (2018). JOSS.</li>
+        <li><strong>XGBoost</strong> — Chen &amp; Guestrin (2016). KDD 2016.</li>
+        <li><strong>CatBoost</strong> — Prokhorenkova et al. (2018). NeurIPS 2018.</li>
+        <li><strong>Optuna</strong> — Akiba et al. (2019). KDD 2019.</li>
+        <li><strong>scikit-learn</strong> — Pedregosa et al. (2011). JMLR 12.</li>
+        <li><strong>JAMA DDI statistics</strong> — Becker et al. (2007). JAMA Intern. Med.</li>
+      </ol>
+      <div class="pillar-bar" style="margin-top:6px;width:100%;">
+        <span>FAERS API</span>
+        <span>mlxtend</span>
+        <span>XGBoost · CatBoost</span>
+        <span>Optuna</span>
+        <span>sklearn · pandas</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- .slides -->
+</div><!-- .reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    transition: 'none',
+    controls: true,
+    progress: true,
+    hash: true,
+    slideNumber: true,
+    width: 1100,
+    height: 700,
+    margin: 0.04,
+  });
+</script>
+</body>
+</html>
