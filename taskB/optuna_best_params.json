@@ -1,0 +1,20 @@
+{
+  "xgboost": {
+    "learning_rate": 0.023940545151753412,
+    "max_depth": 10,
+    "subsample": 0.6021602414667722,
+    "colsample_bytree": 0.9534792874157412,
+    "min_child_weight": 1,
+    "gamma": 1.703369114051031,
+    "reg_alpha": 0.0006432562373297272,
+    "reg_lambda": 0.007136574334290755
+  },
+  "catboost": {
+    "learning_rate": 0.031561549053186776,
+    "depth": 9,
+    "l2_leaf_reg": 9.439143409057449,
+    "bagging_temperature": 0.7734369960858191,
+    "random_strength": 5.424190214777809,
+    "min_data_in_leaf": 8
+  }
+}
