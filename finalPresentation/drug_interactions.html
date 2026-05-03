@@ -244,9 +244,10 @@
   <div class="slide-body" style="flex-direction:row;gap:18px;">
     <div class="col-55" style="display:flex;flex-direction:column;gap:10px;">
       <div class="box-blue" style="font-size:0.84em;">
-        <strong>Source:</strong> openFDA FAERS API — 9 quarterly JSON files from 2025<br>
+        <strong>Source:</strong> openFDA FAERS API — 9 FAERS quarterly JSON files<br>
         <strong>Size:</strong> 108,000 adverse event reports (satisfies &gt;100k requirement)<br>
-        <strong>Format:</strong> Deeply nested JSON — drug lists within report objects, reaction lists within patient objects
+        <strong>Format:</strong> Deeply nested JSON — drug lists within report objects, reaction lists within patient objects<br>
+        <strong>Ingestion challenge:</strong> <code>activesubstance</code> appears as both dict and list across quarterly files — custom parser handles both formats transparently
       </div>
       <table>
         <thead><tr><th>Field used</th><th>Task</th><th>What it means</th></tr></thead>
@@ -351,11 +352,10 @@
       <div class="col" style="font-size:0.84em;background:#fff3cd;border:2px solid #e67e22;border-radius:8px;padding:9px 13px;">
         <div class="phase-tag" style="background:#e67e22;">THE BRIDGE ⚡</div><br>
         <strong>Task A feeds Task B</strong><br>
-        The feature <code>has_drug_reaction_rule</code> = 1 when a patient's drug combination
-        matches a Task A rule with lift ≥ 2.0.
+        The 13 DDI rules discovered in Task A become binary features in Task B's classifier —
+        the output of unsupervised mining directly powers supervised severity prediction.
         <br><br>
-        This feature becomes the <strong>#1 most important predictor</strong> in the
-        severity classifier — the unsupervised rules directly power supervised prediction.
+        <span style="color:#888;font-style:italic;font-size:0.92em;">Results &amp; impact → Slide 8</span>
       </div>
     </div>
   </div>
@@ -547,6 +547,11 @@
           alt="XGBoost Tuned Feature Importance"
           style="width:100%;border-radius:10px;object-fit:contain;max-height:380px;display:block;">
         <p class="img-cap">XGBoost (Optuna-tuned) — Top 25 features by information gain</p>
+        <p style="font-size:0.74em;color:#0d3349;font-weight:700;text-align:center;margin-top:2px;">
+          <strong>#1</strong> <code>has_drug_reaction_rule</code> &nbsp;·&nbsp;
+          <strong>#2</strong> <code>num_reactions</code> &nbsp;·&nbsp;
+          <strong>#3</strong> <code>patientonsetage</code>
+        </p>
       </div>
     </div>
     <div class="col-45" style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
@@ -631,20 +636,20 @@
 </section>
 
 <!-- ══════════════════════════════════════════════
-     SLIDE 10 — TASK B: MODELS & TUNING
+     SLIDE 10a — TASK B: BASELINE MODELS
 ══════════════════════════════════════════════ -->
 <section>
-  <div class="slide-top"><h2>TASK B: MODELS, GPU TRAINING &amp; OPTUNA HYPERPARAMETER SEARCH</h2></div>
+  <div class="slide-top"><h2>TASK B: MODELS — BASELINE COMPARISON (5 CLASSIFIERS)</h2></div>
   <div class="slide-body" style="flex-direction:row;gap:18px;">
     <div class="col-55" style="display:flex;flex-direction:column;gap:8px;">
       <div style="text-align:center;">
-        <img src="../taskB/TaskBPlots/roc_curves_tuned.png" alt="ROC Curves Tuned"
-          style="width:100%;border-radius:10px;object-fit:contain;max-height:340px;display:block;">
-        <p class="img-cap">ROC Curves — tuned Ensemble vs tuned individual models<br>
+        <img src="../taskB/TaskBPlots/roc_curves_tuned.png" alt="ROC Curves"
+          style="width:100%;border-radius:10px;object-fit:contain;max-height:360px;display:block;">
+        <p class="img-cap">ROC Curves — all models (tuned shown for context)<br>
           <span style="color:#888">Dashed = random baseline (AUC=0.50)</span></p>
       </div>
     </div>
-    <div class="col-45" style="display:flex;flex-direction:column;gap:8px;padding-top:4px;">
+    <div class="col-45" style="display:flex;flex-direction:column;gap:10px;padding-top:4px;">
       <table>
         <thead><tr><th>Model</th><th>AUC-ROC</th><th>F1-sev</th><th>Fit time</th></tr></thead>
         <tbody>
@@ -653,22 +658,65 @@
           <tr><td>XGBoost (GPU)</td><td>0.7949</td><td>0.574</td><td>2.6s</td></tr>
           <tr><td>CatBoost (GPU)</td><td>0.7936</td><td>0.574</td><td>2.5s</td></tr>
           <tr class="highlight-row"><td><strong>Voting Ensemble</strong></td><td><strong>0.7962</strong></td><td><strong>0.575</strong></td><td>—</td></tr>
-          <tr class="gpu-row"><td><strong>XGBoost Tuned ⚡</strong></td><td><strong>0.8036</strong></td><td>0.584</td><td>3.9s</td></tr>
-          <tr class="gpu-row"><td><strong>CatBoost Tuned ⚡</strong></td><td><strong>0.8035</strong></td><td>0.584</td><td>—</td></tr>
-          <tr class="gpu-row"><td><strong>Tuned Ensemble ⚡</strong></td><td><strong>0.8054</strong></td><td><strong>0.586</strong></td><td>—</td></tr>
         </tbody>
       </table>
-      <div class="box-teal" style="font-size:0.80em;">
-        <strong>Optuna Bayesian Search (TPE Sampler)</strong><br>
-        XGBoost: 100 trials — searched lr, depth, subsample, colsample, L1/L2 reg<br>
-        CatBoost: 50 trials — searched lr, depth, l2_leaf_reg, bagging_temperature<br>
-        Strategy: n_estimators ceiling (3000) + early stopping (patience=50) —
-        no need to search tree count directly.<br>
-        GPU RTX 3060 · ~18 min total · AUC +0.009 vs baseline
+      <div class="box-teal" style="font-size:0.82em;">
+        <strong>Why GPU-accelerated boosting?</strong><br>
+        SVM (originally proposed) collapsed to all-negative predictions on this imbalanced
+        dataset (73.4% class-0) — AUC ~0.63 even with <code>class_weight='balanced'</code>.
+        XGBoost + CatBoost handle class imbalance natively via
+        <code>scale_pos_weight</code> and <code>auto_class_weights='Balanced'</code>,
+        and train in ~2.5s on GPU vs minutes for SVM on 75k samples.
+      </div>
+      <div class="box-gold" style="font-size:0.81em;">
+        <strong>Threshold tuning on val set:</strong> Grid search [0.10–0.70]
+        maximizing F1-severe — optimal ~0.51–0.54. Default 0.5 misses many severe cases.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 10b — TASK B: OPTUNA TUNING
+══════════════════════════════════════════════ -->
+<section>
+  <div class="slide-top"><h2>TASK B: OPTUNA BAYESIAN HYPERPARAMETER SEARCH</h2></div>
+  <div class="slide-body" style="flex-direction:row;gap:18px;">
+    <div class="col-55" style="display:flex;flex-direction:column;gap:8px;">
+      <div style="text-align:center;">
+        <img src="../taskB/TaskBPlots/optuna_history_xgb.png" alt="Optuna XGBoost history"
+          style="width:100%;border-radius:10px;object-fit:contain;max-height:190px;display:block;">
+        <p class="img-cap">XGBoost Optuna: 100 trials — AUC convergence (TPE sampler)</p>
+      </div>
+      <div style="text-align:center;">
+        <img src="../taskB/TaskBPlots/optuna_history_catboost.png" alt="Optuna CatBoost history"
+          style="width:100%;border-radius:10px;object-fit:contain;max-height:190px;display:block;">
+        <p class="img-cap">CatBoost Optuna: 50 trials — AUC convergence</p>
+      </div>
+    </div>
+    <div class="col-45" style="display:flex;flex-direction:column;gap:10px;padding-top:4px;">
+      <div class="box-teal" style="font-size:0.82em;">
+        <strong>Bayesian Search (TPE Sampler, seed=42)</strong><br>
+        XGBoost: 100 trials — lr, depth, subsample, colsample, L1/L2 reg<br>
+        CatBoost: 50 trials — lr, depth, l2_leaf_reg, bagging_temp, random_strength<br>
+        Strategy: <code>n_estimators=3000</code> ceiling + early stopping (patience=50) —
+        no need to search tree count directly.
+      </div>
+      <table>
+        <thead><tr><th>Model</th><th>Baseline AUC</th><th>Tuned AUC</th><th>Δ</th></tr></thead>
+        <tbody>
+          <tr class="gpu-row"><td><strong>XGBoost ⚡</strong></td><td>0.7949</td><td class="rise-col"><strong>0.8036</strong></td><td class="rise-col">+0.009</td></tr>
+          <tr class="gpu-row"><td><strong>CatBoost ⚡</strong></td><td>0.7936</td><td class="rise-col"><strong>0.8035</strong></td><td class="rise-col">+0.010</td></tr>
+          <tr class="highlight-row"><td><strong>Tuned Ensemble ⚡</strong></td><td>0.7962</td><td class="rise-col"><strong>0.8054</strong></td><td class="rise-col"><strong>+0.009</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="callout-green" style="font-size:0.88em;">
+        GPU RTX 3060 · ~18 min total<br>
+        <strong>+0.009 AUC</strong> vs baseline Ensemble
       </div>
       <div class="box-gold" style="font-size:0.79em;">
-        <strong>Threshold tuning on val set:</strong> Instead of default 0.5, grid search
-        [0.10–0.70] maximizing F1-severe. Optimal thresholds ~0.51–0.54 for tuned models.
+        Best params saved to <code>optuna_best_params.json</code> — fully reproducible.
+        TPE sampler with <code>seed=42</code> guarantees identical results on rerun.
       </div>
     </div>
   </div>
@@ -725,6 +773,7 @@
           <tr><td>FAERS data, &gt;100k rows</td><td>108,000 reports</td><td class="rise-col">&#10003;</td></tr>
           <tr><td>Association Rule Mining</td><td>Apriori + FP-Growth, 13 DDI rules, max lift 223</td><td class="rise-col">&#10003;</td></tr>
           <tr><td>Algorithm comparison (A vs FP-G)</td><td>Identical results = mathematical validation</td><td class="rise-col">&#10003; exceeded</td></tr>
+          <tr><td>Sensitivity analysis (support sweep)</td><td>0.001→0.0025 tested; MemoryError at low support; 13 clean rules at 0.0025</td><td class="rise-col">&#10003;</td></tr>
           <tr><td>Severity prediction classifier</td><td>5 models including GPU-accelerated boosting</td><td class="rise-col">&#10003; exceeded</td></tr>
           <tr><td>Random Forest baseline</td><td>AUC 0.7916</td><td class="rise-col">&#10003;</td></tr>
           <tr><td>Logistic Regression</td><td>AUC 0.7519 (linear baseline)</td><td class="rise-col">&#10003;</td></tr>
@@ -736,9 +785,10 @@
       </table>
     </div>
     <div class="col-45" style="display:flex;flex-direction:column;gap:10px;justify-content:center;">
-      <div class="callout-green" style="font-size:0.9em;">
+      <div class="callout-green" style="font-size:0.86em;">
         AUC progression:<br>
-        0.750 → 0.796 (clean) → <strong>0.805</strong> (Optuna tuned)
+        <span style="color:#555;font-size:0.92em;">Leakage removed: 0.805 → 0.796 (real drop confirmed)</span><br>
+        Optuna tuning: 0.796 → <strong>0.805</strong> (recovered &amp; exceeded)
       </div>
       <div class="box-green" style="font-size:0.84em;">
         <strong class="check">&#10003; Key contributions:</strong>
