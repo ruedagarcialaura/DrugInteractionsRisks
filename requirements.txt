@@ -11,6 +11,7 @@ fastparquet
 pyarrow
 tqdm
 tabulate
+optuna>=3.0.0
 notebook
 jupyterlab
 nbconvert
