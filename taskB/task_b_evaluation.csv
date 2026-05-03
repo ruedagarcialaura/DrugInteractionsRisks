@@ -1,0 +1,6 @@
+Model,AUC-ROC,Avg Precision,Threshold,F1 (weighted),F1 (severe=1),Recall (severe),Prec. (severe),Fit time (s)
+Voting Ensemble,0.7962,0.6032,0.55,0.7539,0.575,0.6477,0.517,0.0
+XGBoost (GPU),0.7949,0.5985,0.52,0.7415,0.5737,0.6847,0.4937,2.8
+CatBoost (GPU),0.7936,0.5958,0.56,0.7548,0.5739,0.6411,0.5195,2.7
+Random Forest,0.7916,0.5962,0.54,0.75,0.5697,0.6442,0.5106,5.1
+Logistic Regression,0.7519,0.5208,0.53,0.7152,0.5332,0.6409,0.4564,1.6
