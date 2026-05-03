@@ -8,10 +8,11 @@ Leer en este orden si es la primera vez:
 | `00_VISION_GENERAL.md` | Qué es el proyecto, qué está hecho, qué falta | LEER PRIMERO |
 | `01_TASK_A_pipeline.md` | Pipeline de Association Rules explicado a fondo | Task A |
 | `02_TASK_B_pipeline.md` | Pipeline de Classification explicado a fondo | Task B |
-| `03_LO_QUE_FALTA.md` | Checklist de tareas pendientes + plan de acción | CRÍTICO |
+| `03_LO_QUE_FALTA.md` | Checklist de tareas (⚠️ DESACTUALIZADO — ver 07) | Histórico |
 | `04_CONCEPTOS_CLAVE.md` | Glosario técnico: KDD, Lift, AUC-ROC, etc. | Referencia |
-| `05_SERVIDOR_REMOTO.md` | Guía SSH paso a paso para ejecutar en la 3060 | Para ejecutar |
+| `05_SERVIDOR_REMOTO.md` | Guía SSH (⚠️ DESACTUALIZADO — refleja modelos viejos) | Histórico |
 | `06_RESUMEN_PRESENTACION.md` | Narrativa, preguntas difíciles, datos impactantes | Para presentar |
+| **`07_ITERACIONES_TASK_B.md`** | **Historial completo de iteraciones + resultados finales** | **ESTADO ACTUAL** |
 
 ---
 
@@ -19,18 +20,16 @@ Leer en este orden si es la primera vez:
 
 ```
 Task A: 100% COMPLETO ✅ (8/8 scripts + plots generados)
-Task B: 66% COMPLETO ⚠️  (2/3 scripts — falta ejecutar 3B_modeling.py)
+Task B: 100% COMPLETO ✅ (4/4 scripts + Optuna tuning + plots + AUC 0.805)
 ```
 
-## El fichero más importante que hay que ejecutar
+## Resultado final Task B
 
-```bash
-# En el servidor remoto, desde la raíz del proyecto:
-python taskB/3B_modeling.py
+```
+Mejor modelo:  Tuned Ensemble (XGBoost + CatBoost, Optuna-tuned)
+AUC-ROC:       0.8054
+F1-severe:     0.5860
+Recall-sev:    0.6512
 ```
 
-Este script está en `taskB/3B_modeling.py` y genera:
-- Tabla comparativa AUC-ROC / F1 de los 3 clasificadores
-- Confusion matrices plot
-- ROC curves plot
-- Feature importance del Random Forest
+Ver `07_ITERACIONES_TASK_B.md` para el historial completo de cómo se llegó aquí.
