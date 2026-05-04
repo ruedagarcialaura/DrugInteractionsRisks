@@ -58,19 +58,19 @@ DrugInteractionsRisks/
 │   ├── 8A_GenerateMetricsTable.py    # Final metrics CSV
 │   └── TaskAPlots/               # Generated network graphs (PNG)
 │
-├── taskB/                        # Task B scripts
+├── taskB/                        # Task B scripts + notebook
 │   ├── 1B_dataIngestion.py       # FAERS ZIP → consolidated_data.parquet
 │   ├── 2B_preprocessing.py       # Feature engineering → 71-feature matrix
 │   ├── 3B_modeling.py            # Train 5 classifiers, threshold tuning
 │   ├── 4B_optuna_tuning.py       # Bayesian hyperparameter search (GPU)
+│   ├── TaskB_notebook.ipynb          # End-to-end pipeline notebook (code)
+│   ├── TaskB_notebook_EXECUTED.ipynb # Same notebook with all outputs rendered
 │   ├── optuna_best_params.json   # Best Optuna params (XGBoost + CatBoost)
 │   ├── task_b_evaluation.csv     # Baseline model results
 │   ├── task_b_tuned_evaluation.csv  # Tuned model results
 │   ├── results_history.csv       # Full iteration history
 │   └── TaskBPlots/               # ROC curves, confusion matrices, feature importance (PNG)
 │
-├── TaskB_notebook.ipynb          # End-to-end Task B notebook (code)
-├── TaskB_notebook_EXECUTED.ipynb # Same notebook with all outputs rendered
 │
 ├── finalPresentation/
 │   └── drug_interactions.html   # Reveal.js final presentation (14 slides)
@@ -132,9 +132,9 @@ Validated `--min_support` value is **0.0025** (0.25%). Lower values cause Memory
 
 ## Running Task B
 
-**Option A — Notebook (recommended):** Open and run `TaskB_notebook_EXECUTED.ipynb` to see all results, or `TaskB_notebook.ipynb` to re-run from scratch. The notebook handles all steps automatically, including dependency checks and Optuna tuning.
+**Option A — Notebook (recommended):** Open `taskB/TaskB_notebook_EXECUTED.ipynb` to see all results pre-rendered, or `taskB/TaskB_notebook.ipynb` to re-run from scratch. The notebook handles all steps automatically including dependency checks and Optuna tuning.
 
-> Run from the project root folder. The notebook asserts `taskA/` exists.
+> The notebook can be opened from `taskB/` — it auto-detects the project root at startup.
 
 **Option B — Scripts:**
 
