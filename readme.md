@@ -26,7 +26,7 @@ A full KDD pipeline applied to **108,000 real FDA adverse event reports** (FAERS
 | Apriori (Active Substances) | 0.0025 | **13** | **223.45** | 0.637 |
 | FP-Growth (Active Substances) | 0.0025 | **13** | **223.45** | 0.637 |
 
-Both algorithms produce identical rules — cross-validates correctness. Strongest signal: `LEUCOVORIN + FLUOROURACIL → DIARRHEA` (lift 223×).
+Both algorithms produce identical rules — cross-validates correctness. Strongest signal: `DUPILUMAB + ACCIDENTAL EXPOSURE TO PRODUCT → EXPOSURE VIA SKIN CONTACT` (lift 223×). Drug-drug co-prescription patterns (e.g., R-CHOP chemo: CYCLOPHOSPHAMIDE + DOXORUBICIN + VINCRISTINE, lift 162×) bridge directly into Task B features.
 
 ### Task B
 | Model | AUC-ROC | F1-severe | Recall-severe |
@@ -38,7 +38,7 @@ Both algorithms produce identical rules — cross-validates correctness. Stronge
 | Voting Ensemble | 0.7962 | 0.575 | 0.648 |
 | **Tuned Ensemble (Optuna ⚡)** | **0.8054** | **0.586** | **0.651** |
 
-The feature `has_drug_reaction_rule` (from Task A) is the **#1 most predictive feature** in the tuned XGBoost classifier.
+Task A's drug-drug co-prescription rules feed Task B as `has_drug_drug_interaction` — 517 patient reports flagged as R-CHOP chemotherapy combinations.
 
 ---
 
@@ -165,7 +165,7 @@ python taskB/4B_optuna_tuning.py
 | NaN preserved in `patientonsetage` | Global imputation before split = data leakage; each model imputes within its own `sklearn.Pipeline` |
 | SVM replaced by XGBoost + CatBoost | SVM collapsed to all-negative predictions (AUC ≈ 0.63) on this imbalanced dataset; gradient boosting handles class imbalance natively |
 | Leakage detection | `rxn_hospitalisation` (MedDRA) directly encoded the target variable; removing it dropped AUC 0.805→0.796, confirming real leakage |
-| Task A rules as Task B features | `has_drug_reaction_rule` (lift ≥ 2.0 match) became the #1 most predictive feature in the tuned classifier |
+| Task A rules as Task B features | Drug-drug co-prescription rules (R-CHOP chemo) feed `has_drug_drug_interaction`; reaction-only rules (NAUSEA→VOMITING) have no drug antecedent and are correctly excluded |
 
 ---
 

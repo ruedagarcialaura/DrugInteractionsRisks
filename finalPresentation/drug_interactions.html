@@ -409,10 +409,9 @@
       </div>
       <div class="box-gold" style="font-size:0.84em;">
         <strong>Strongest signal:</strong><br>
-        <code>LEUCOVORIN + FLUOROURACIL → DIARRHEA</code><br>
-        Lift = <strong>223.45</strong> — patients on this chemo combo develop GI toxicity
-        223× more often than chance.<br>
-        <span class="note">Known in oncology: 5-FU + leucovorin rescue has documented GI toxicity.</span>
+        <code>DUPILUMAB + ACCIDENTAL EXPOSURE → SKIN CONTACT</code><br>
+        Lift = <strong>223.45</strong> — this adverse event pattern appears 223× more often than chance.<br>
+        Drug-drug bridge: <code>CYCLOPHOSPHAMIDE + DOXORUBICIN → VINCRISTINE</code> (R-CHOP chemo, lift 162×)</span>
       </div>
       <div class="callout-green" style="font-size:0.84em;">
         From thousands of raw rules → 13 genuine DDI signals<br>after indication-bias filtering
@@ -425,36 +424,32 @@
      SLIDE 8 — THE BRIDGE: TASK A → TASK B
 ══════════════════════════════════════════════ -->
 <section>
-  <div class="slide-top"><h2>THE BRIDGE: TASK A RULES → #1 FEATURE IN TASK B</h2></div>
+  <div class="slide-top"><h2>THE BRIDGE: TASK A RULES → TASK B FEATURES</h2></div>
   <div class="slide-body" style="flex-direction:row;gap:18px;">
     <div class="col-60" style="display:flex;flex-direction:column;gap:8px;">
       <img src="../taskB/TaskBPlots/feature_importance_xgb_tuned.png"
         alt="XGBoost Feature Importance"
         style="width:100%;border-radius:10px;object-fit:contain;max-height:420px;display:block;">
       <p class="img-cap">XGBoost (Optuna-tuned) — Top 25 features by information gain</p>
-      <p style="font-size:0.76em;color:#0d3349;font-weight:700;text-align:center;">
-        #1 <code>has_drug_reaction_rule</code> &nbsp;·&nbsp;
-        #2 <code>num_reactions</code> &nbsp;·&nbsp;
-        #3 <code>patientonsetage</code>
-      </p>
     </div>
     <div class="col-40" style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
       <div class="box-gold" style="font-size:0.85em;">
         <strong>How the bridge works:</strong><br>
         For each patient report, check if their drug combination
         matches any of the 13 Task A rules (lift ≥ 2.0).<br><br>
-        <code>has_drug_reaction_rule = 1</code> → known high-lift combo
+        <code>has_drug_drug_interaction = 1</code> → known high-lift combo<br>
+        <span style="font-size:0.85em;">517 reports flagged — R-CHOP chemo patients</span>
       </div>
-      <div class="callout-red" style="font-size:0.98em;">
-        has_drug_reaction_rule<br>
-        <strong>= #1 most predictive feature</strong><br>
-        <span style="font-size:0.82em;font-weight:400;">in the tuned XGBoost classifier</span>
+      <div class="callout-red" style="font-size:0.95em;">
+        Drug-drug rules (R-CHOP)<br>
+        <strong>feed severity prediction</strong><br>
+        <span style="font-size:0.82em;font-weight:400;">CYCLOPHOSPHAMIDE + DOXORUBICIN + VINCRISTINE</span>
       </div>
       <div class="box-green" style="font-size:0.84em;">
         <strong>4 Task A features fed into Task B:</strong>
         <ul>
-          <li><code>has_drug_reaction_rule</code> — rule match (lift ≥ 2)</li>
-          <li><code>has_drug_drug_interaction</code> — drug-drug match</li>
+          <li><code>has_drug_drug_interaction</code> — drug combo match</li>
+          <li><code>has_drug_reaction_rule</code> — drug→reaction match</li>
           <li><code>num_matching_rules</code> — how many rules fire</li>
           <li><code>max_interaction_lift</code> — strongest rule activated</li>
         </ul>
@@ -671,7 +666,7 @@
         <ul>
           <li><strong>Real-time FAERS streaming</strong> — update rules as new quarterly data arrives; detect emerging DDI signals before annual FDA reviews</li>
           <li><strong>Graph Neural Network</strong> — model drug-reaction relationships as a knowledge graph; handle multi-hop interactions</li>
-          <li><strong>SHAP explanations</strong> — patient-level explainability for clinical deployment ("this case flagged because LEUCOVORIN + FLUOROURACIL has lift=223 for GI toxicity")</li>
+          <li><strong>SHAP explanations</strong> — patient-level explainability for clinical deployment ("this case flagged because R-CHOP drug combination has lift=162 for co-prescription severity")</li>
         </ul>
       </div>
       <div class="box-gold" style="font-size:0.84em;">
