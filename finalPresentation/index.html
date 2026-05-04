@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>QuercusHealth AI — Final Presentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <style>
+    /* ── Base ──────────────────────────────── */
+    .reveal {
+      font-size: 23px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    .reveal section {
+      padding: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    /* ── TITLE BAR ─────────────────────────── */
+    .slide-top {
+      flex-shrink: 0;
+      padding: 14px 28px 7px;
+    }
+
+    .slide-top h2 {
+      font-size: 1.5em;
+      font-weight: 800;
+      color: #1a1a2e;
+      border-bottom: 4px solid #2c5f8a;
+      padding-bottom: 7px;
+      margin: 0;
+    }
+
+    /* ── CONTENT AREA ────────────────────── */
+    .slide-body {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      padding: 0 28px 8px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Typography ────────────────────────── */
+    .reveal h1 {
+      font-size: 2.6em;
+      font-weight: 900;
+      color: #1a1a2e;
+      line-height: 1.1;
+    }
+
+    .reveal ul {
+      font-size: 0.86em;
+      line-height: 1.8;
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .reveal ol {
+      font-size: 0.86em;
+      line-height: 2.0;
+    }
+
+    .reveal p {
+      font-size: 0.84em;
+      margin: 0;
+    }
+
+    /* ── Layout helpers ────────────────────── */
+    .two-col {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    .col { flex: 1; }
+    .col-28 { flex: 0 0 27%; }
+    .col-30 { flex: 0 0 28%; }
+    .col-33 { flex: 0 0 31%; }
+    .col-35 { flex: 0 0 33%; }
+    .col-40 { flex: 0 0 38%; }
+    .col-45 { flex: 0 0 43%; }
+    .col-55 { flex: 0 0 53%; }
+    .col-60 { flex: 0 0 58%; }
+    .col-65 { flex: 0 0 63%; }
+    .col-70 { flex: 0 0 68%; }
+    .col-72 { flex: 0 0 70%; }
+
+    /* ── Boxes ─────────────────────────────── */
+    .box-blue {
+      border: 2px solid #2166ac;
+      padding: 9px 13px;
+      border-radius: 8px;
+    }
+
+    .box-red {
+      border: 2px solid #c0392b;
+      padding: 9px 13px;
+      border-radius: 8px;
+    }
+
+    .box-green {
+      border: 2px solid #27ae60;
+      padding: 9px 13px;
+      border-radius: 8px;
+      background: #f0fff4;
+    }
+
+    .box-gold {
+      border-left: 5px solid #e67e22;
+      padding: 8px 12px;
+      background: #fffaf0;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .box-purple {
+      border: 2px solid #8e44ad;
+      padding: 9px 13px;
+      border-radius: 8px;
+      background: #fdf2ff;
+    }
+
+    .callout-red {
+      background: #fff0f0;
+      border: 3px solid #c0392b;
+      border-radius: 10px;
+      padding: 12px 22px;
+      text-align: center;
+      font-size: 1.15em;
+      font-weight: 900;
+      color: #c0392b;
+      margin-top: 10px;
+    }
+
+    .callout-green {
+      background: #f0fff4;
+      border: 3px solid #27ae60;
+      border-radius: 10px;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 1.05em;
+      font-weight: 800;
+      color: #1a6e38;
+    }
+
+    .callout-conclusion {
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 22px;
+      text-align: center;
+      font-size: 1.08em;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .big-red { color: #c0392b; font-weight: 800; }
+    .big-green { color: #27ae60; font-weight: 700; }
+    .big-blue { color: #2166ac; font-weight: 700; }
+
+    .muted { color: #666; font-size: 0.76em; }
+    .note  { color: #555; font-size: 0.71em; font-style: italic; }
+
+    /* ── Badges / pillar bar ───────────────── */
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+
+    .badge {
+      background: #2c5f8a;
+      color: #fff;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 0.58em;
+      font-weight: 600;
+    }
+
+    .badge-green {
+      background: #27ae60;
+      color: #fff;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 0.58em;
+      font-weight: 600;
+    }
+
+    .badge-orange {
+      background: #e67e22;
+      color: #fff;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 0.58em;
+      font-weight: 600;
+    }
+
+    .pillar-bar {
+      background: #f4f6f9;
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      justify-content: center;
+      font-size: 0.66em;
+      color: #2c5f8a;
+      font-weight: 700;
+    }
+
+    .pillar-bar span {
+      padding: 0 12px;
+      border-right: 1px solid #bcd;
+    }
+
+    .pillar-bar span:last-child { border-right: none; }
+
+    /* ── Table ─────────────────────────────── */
+    table {
+      font-size: 0.79em;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th {
+      background: #2c5f8a;
+      color: #fff;
+      padding: 7px 10px;
+      text-align: left;
+    }
+
+    td {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+    }
+
+    tr:nth-child(even) td { background: #f7f9fc; }
+
+    .highlight-row td {
+      background: #fff3cd !important;
+      font-weight: 700;
+    }
+
+    .gpu-row td {
+      background: #e8f5e9 !important;
+      font-weight: 700;
+      font-style: italic;
+      color: #1a6e38;
+    }
+
+    .drop-col  { color: #c0392b; font-weight: 700; }
+    .rise-col  { color: #27ae60; font-weight: 700; }
+    .na-col    { color: #999; font-style: italic; }
+
+    /* ── Pipeline ──────────────────────────── */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: nowrap;
+    }
+
+    .pipe-box {
+      background: #2c5f8a;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.78em;
+      font-weight: 700;
+      text-align: center;
+      min-width: 116px;
+      line-height: 1.5;
+    }
+
+    .pipe-box.orange { background: #e67e22; }
+    .pipe-box.green  { background: #27ae60; }
+    .pipe-box.purple { background: #8e44ad; }
+    .pipe-box.gray   { background: #7f8c8d; }
+
+    .pipe-arr {
+      font-size: 1.8em;
+      color: #888;
+      padding: 0 4px;
+    }
+
+    /* ── Stats ─────────────────────────────── */
+    .stat-row {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+    }
+
+    .stat-box {
+      text-align: center;
+      padding: 9px 18px;
+      border: 2px solid #c0392b;
+      border-radius: 10px;
+      background: #fff8f8;
+    }
+
+    .stat-box.blue {
+      border-color: #2166ac;
+      background: #f0f6ff;
+    }
+
+    .stat-box.green {
+      border-color: #27ae60;
+      background: #f0fff4;
+    }
+
+    .stat-num { font-size: 1.5em; font-weight: 800; color: #c0392b; }
+    .stat-num.blue  { color: #2166ac; }
+    .stat-num.green { color: #27ae60; }
+    .stat-lbl { font-size: 0.64em; color: #555; margin-top: 2px; }
+
+    /* ── Images ─────────────────────────────── */
+    .img-cap {
+      font-size: 0.64em;
+      color: #555;
+      margin-top: 3px;
+      text-align: center;
+    }
+
+    .hero-meta {
+      color: #444;
+      font-size: 0.84em;
+      line-height: 2.0;
+      margin-top: 12px;
+    }
+
+    .hero-meta strong { color: #1a1a2e; }
+
+    .check { color: #27ae60; font-weight: 700; }
+    .cross { color: #c0392b; font-weight: 700; }
+
+    /* ── Phase tag ─────────────────────────── */
+    .phase-tag {
+      display: inline-block;
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 0.62em;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    /* ── Metric highlight box ──────────────── */
+    .metric-big {
+      text-align: center;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    .metric-big .val {
+      font-size: 2.0em;
+      font-weight: 900;
+      display: block;
+    }
+
+    .metric-big .lbl {
+      font-size: 0.68em;
+      color: #555;
+    }
+
+    /* ── CPU notice ────────────────────────── */
+    .cpu-notice {
+      background: #fffde7;
+      border: 2px dashed #f39c12;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.68em;
+      color: #7d5a00;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ══════════════════════════════════
+           SLIDE 1 — TITLE
+      ══════════════════════════════════ -->
+      <section>
+        <div style="display:flex;flex-direction:column;align-items:center;
+              justify-content:center;height:700px;text-align:center;padding:40px 80px;">
+          <h1 style="margin-bottom:10px;">QuercusHealth AI</h1>
+          <p style="font-size:1.05em;color:#2c5f8a;font-weight:600;margin-bottom:6px;">
+            Detecting <em>La Seca</em>-Affected Oaks from Satellite Imagery
+          </p>
+          <p style="font-size:0.88em;color:#555;margin-bottom:22px;">
+            Zero-Shot Baseline &rarr; Domain Adaptation &rarr; Fine-Tuning &rarr; Two-Stage Pipeline &rarr; End-to-End Evaluation
+          </p>
+          <div class="hero-meta">
+            <strong>Sergio Illescas</strong><br>
+            Illinois Institute of Technology<br>
+            Applied AI &amp; Deep Learning &middot; Spring 2026
+          </div>
+          <div class="pillar-bar" style="margin-top:18px;width:75%;">
+            <span>Problem</span>
+            <span>Data Strategy</span>
+            <span>Domain Shift</span>
+            <span>Fine-Tuning</span>
+            <span>Results</span>
+          </div>
+          <div class="badge-row" style="margin-top:12px;justify-content:center;">
+            <span class="badge">DeepForest v2.1 &middot; RetinaNet</span>
+            <span class="badge">28 annotated Dehesa tiles &middot; 7341 GT boxes</span>
+            <span class="badge">2-stage: Detector + ResNet-18 Classifier</span>
+            <span class="badge-green">RTX 3060 &middot; CUDA 12.4</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 2 — PROBLEM
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>THE PROBLEM: A DISEASE SILENTLY KILLING SPAIN'S OAK FORESTS</h2>
+        </div>
+        <div class="slide-body" style="flex-direction:row;gap:20px;">
+          <div style="flex:0 0 52%;text-align:center;">
+            <img src="../data/sample_2019aug_annoted.png" alt="Dehesa 2019 annotated"
+              style="width:100%;border-radius:10px;height:450px;object-fit:cover;display:block;">
+            <p class="img-cap">Spanish Dehesa (Extremadura) — ochre soil, sparse isolated oaks<br>
+              <span style="color:#8e44ad;font-weight:700;">Boxes mark trees suspicious of <em>La Seca</em> — detectable from satellite before visible on the ground</span>
+            </p>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;">
+            <ul>
+              <li><strong>The Dehesa</strong> — 5 million hectares of oak savanna, SW Spain.<br>
+                <span class="note">UNESCO World Heritage landscape</span></li>
+              <li><strong><em>La Seca</em></strong> (<em>Phytophthora cinnamomi</em>) kills oak roots
+                silently. Crown damage is visible from satellite <strong>before it's visible from the ground.</strong></li>
+              <li>Manual monitoring of 5M hectares is <strong>impossible.</strong></li>
+              <li>By the time a forest guard sees a dying tree, it is already too late.</li>
+            </ul>
+            <div class="box-gold" style="font-size:0.86em;">
+              <strong>Our goal:</strong> Detect which trees show early <em>La Seca</em> symptoms
+              from satellite images — automatically, at scale, with no field visits.
+            </div>
+            <div class="callout-conclusion" style="font-size:0.82em;">
+              This is not an academic toy problem. Every false negative = a tree that could have been saved.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 3 — FULL PIPELINE
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>THE FULL PIPELINE: THREE PHASES FROM SATELLITE TO PREDICTION</h2>
+        </div>
+        <div class="slide-body" style="justify-content:center;gap:14px;">
+          <div class="pipeline" style="margin-top:4px;">
+            <div class="pipe-box" style="min-width:96px;">
+              <span style="font-size:0.72em;opacity:0.8;">PHASE 1</span><br>
+              Satellite<br>Capture<br>
+              <span style="font-size:0.72em;opacity:0.85">324 tiles &middot; 800px</span>
+            </div>
+            <span class="pipe-arr">&#8594;</span>
+            <div class="pipe-box orange" style="min-width:96px;">
+              <span style="font-size:0.72em;opacity:0.9;">PHASE 2</span><br>
+              Zero-Shot<br>Baseline<br>
+              <span style="font-size:0.72em;opacity:0.9">F1=0.32</span>
+            </div>
+            <span class="pipe-arr">&#8594;</span>
+            <div class="pipe-box gray" style="min-width:96px;">
+              <span style="font-size:0.72em;opacity:0.9;">PHASE 2b</span><br>
+              Pre-Annotation<br>+ Review<br>
+              <span style="font-size:0.72em;opacity:0.9">28 tiles GT</span>
+            </div>
+            <span class="pipe-arr">&#8594;</span>
+            <div class="pipe-box purple" style="min-width:96px;">
+              <span style="font-size:0.72em;opacity:0.9;">PHASE 3</span><br>
+              Fine-Tuning<br>2-class<br>
+              <span style="font-size:0.72em;opacity:0.9">F1=0.669</span>
+            </div>
+            <span class="pipe-arr">&#8594;</span>
+            <div class="pipe-box" style="background:#1a6e38;min-width:96px;">
+              <span style="font-size:0.72em;opacity:0.9;">PHASE 4</span><br>
+              Two-Stage<br>ResNet-18<br>
+              <span style="font-size:0.72em;opacity:0.9">Seca F1=0.354</span>
+            </div>
+            <span class="pipe-arr">&#8594;</span>
+            <div class="pipe-box green" style="min-width:96px;">
+              <span style="font-size:0.72em;opacity:0.9;">PHASE 5</span><br>
+              End-to-End<br>Evaluation<br>
+              <span style="font-size:0.72em;opacity:0.9">Seca F1=0.346</span>
+            </div>
+          </div>
+
+          <div class="two-col" style="gap:14px;margin-top:6px;">
+            <div class="col box-blue" style="font-size:0.82em;">
+              <strong>&#10003; Phase 1 — Capture</strong><br>
+              Automated Google Earth scraper. 324 tiles (800&times;800 px) across the Extremadura Dehesa.
+              Two epochs: Summer 2019 + Winter 2024 on the same GPS coordinates.
+            </div>
+            <div class="col box-blue" style="font-size:0.82em;">
+              <strong>&#10003; Phase 2 — Baseline &amp; Domain Shift</strong><br>
+              Ran DeepForest (pre-trained on US NEON forests) zero-shot. F1 dropped from 0.68 to 0.32.
+              KS-test (D=0.86) proved statistically the model had never seen soil like this.
+            </div>
+            <div class="col box-blue" style="font-size:0.82em;">
+              <strong>&#10003; Phase 2b — Pre-annotation</strong><br>
+              Used NEON DeepForest to auto-annotate 324 summer tiles (Pascal VOC XML).
+              Uploaded to Roboflow for human review. Bridges Phase 2 → Phase 3.
+            </div>
+            <div class="col box-purple" style="font-size:0.82em;">
+              <strong>&#10003; Phase 3 — Fine-Tuning</strong><br>
+              Re-train DeepForest on Dehesa. 30 epochs, RTX 3060. F1-Overall 0.669 (+34.9 pp)
+              but F1-Seca=0.000 — detector can't separate minority class.
+            </div>
+            <div class="col box-green" style="font-size:0.82em;">
+              <strong>&#10003; Phase 4 — Two-Stage Pipeline</strong><br>
+              Stage 1: DeepForest detector → boxes. Stage 2: ResNet-18 96px crop classifier.
+              WeightedSampler fixes imbalance. <strong>F1-Seca 0.000→0.354 (+35.4 pp)</strong>.
+            </div>
+            <div class="col" style="font-size:0.82em;background:#f0fff4;border:2px solid #27ae60;border-radius:8px;padding:9px 13px;">
+              <strong>&#10003; Phase 5 — End-to-End Evaluation</strong><br>
+              1-class "Tree" detector fine-tuned + Phase 4 classifier. True pipeline evaluation
+              via IoU≥0.4 matching. <strong>F1-Seca 0.347 end-to-end</strong> (real system metric).
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 4 — DATA STRATEGY
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>DATA STRATEGY: MULTI-TEMPORAL GROUND TRUTH WITHOUT FIELD VISITS</h2>
+        </div>
+        <div class="slide-body" style="gap:8px;">
+          <div style="display:flex;gap:14px;flex:1;min-height:0;">
+            <div style="flex:1;text-align:center;display:flex;flex-direction:column;">
+              <p style="font-weight:800;color:#2166ac;margin-bottom:4px;font-size:0.84em;">SUMMER 2019 — ANNOTATION SOURCE</p>
+              <img src="../data/sample_2019aug_annoted.png" alt="Summer 2019 annotated"
+                style="width:100%;border-radius:10px;flex:1;min-height:0;object-fit:cover;display:block;">
+              <p class="img-cap" style="margin-top:4px;">
+                Oaks in full leaf. Purple boxes = manually annotated crowns. Some show sparse radiating branches — early <em>La Seca</em>.
+              </p>
+            </div>
+            <div style="flex:1;text-align:center;display:flex;flex-direction:column;">
+              <p style="font-weight:800;color:#c0392b;margin-bottom:4px;font-size:0.84em;">WINTER 2024 — GROUND TRUTH VALIDATION</p>
+              <img src="../data/sample_2024feb_annoted.png" alt="Winter 2024 annotated"
+                style="width:100%;border-radius:10px;flex:1;min-height:0;object-fit:cover;display:block;">
+              <p class="img-cap" style="margin-top:4px;">
+                Same GPS zone, 5 years later. Annotated trees that disappeared &rarr; <strong>confirmed <em>La Seca</em></strong>. No field visit needed.
+              </p>
+            </div>
+            <div style="flex:0 0 22%;display:flex;flex-direction:column;justify-content:center;gap:8px;">
+              <div class="stat-box blue" style="padding:8px;">
+                <div class="stat-num blue" style="font-size:1.3em;">324</div>
+                <div class="stat-lbl">tiles scraped<br>Google Earth</div>
+              </div>
+              <div class="stat-box blue" style="padding:8px;">
+                <div class="stat-num blue" style="font-size:1.3em;">7341</div>
+                <div class="stat-lbl">GT boxes<br>243 train images</div>
+              </div>
+              <div class="stat-box green" style="padding:8px;">
+                <div class="stat-num green" style="font-size:1.3em;">6449</div>
+                <div class="stat-lbl">Healthy (87.9%)</div>
+              </div>
+              <div class="stat-box" style="padding:8px;">
+                <div class="stat-num" style="font-size:1.3em;">892</div>
+                <div class="stat-lbl">Seca (12.1%)</div>
+              </div>
+              <div style="background:#f4f0ff;border:2px solid #8e44ad;border-radius:8px;padding:8px;text-align:center;">
+                <div style="font-size:1.3em;font-weight:800;color:#8e44ad;">400</div>
+                <div style="font-size:0.62em;color:#555;">new tiles staged<br>for Phase 6 labeling</div>
+              </div>
+            </div>
+          </div>
+          <div class="box-green" style="font-size:0.80em;text-align:center;flex-shrink:0;">
+            Temporal comparison (2019→2024) provides label-free ground truth at scale — no field visits, no guessing.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 5 — BASELINE RECAP + DOMAIN SHIFT
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>PHASE 2 RECAP: THE DOMAIN SHIFT PROBLEM — STATISTICALLY PROVEN</h2>
+        </div>
+        <div class="slide-body" style="gap:10px;">
+          <!-- Image full-width on top -->
+          <div style="text-align:center;flex-shrink:0;">
+            <img src="../reports/score_distributions.png" alt="Score distributions"
+              style="width:100%;border-radius:10px;object-fit:contain;max-height:280px;display:block;">
+            <p class="img-cap" style="margin-top:3px;">Confidence score distributions — NEON forest (blue) vs Spanish Dehesa (red). &nbsp;
+              <strong>KS test: D=0.86, p&lt;0.0001</strong>
+            </p>
+          </div>
+          <!-- Bottom row: table + boxes -->
+          <div style="display:flex;gap:16px;flex:1;min-height:0;align-items:flex-start;">
+            <div style="flex:0 0 36%;">
+              <table>
+                <thead>
+                  <tr><th></th><th>NEON forests</th><th>Our Dehesa</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Precision</td><td>0.73</td><td class="drop-col">0.51</td></tr>
+                  <tr><td>Recall</td><td>0.63</td><td class="drop-col">0.23</td></tr>
+                  <tr class="highlight-row">
+                    <td><strong>F1</strong></td><td><strong>0.68</strong></td><td class="drop-col"><strong>0.32</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col box-gold" style="font-size:0.82em;">
+              <strong>Why recall collapses:</strong> Bright ochre soil → model assigns low confidence → missed detections.
+              Best achievable with threshold tuning: F1=0.53. <strong>The model needs to learn the Dehesa domain.</strong>
+            </div>
+            <div style="flex:0 0 26%;display:flex;align-items:center;">
+              <div class="callout-red" style="font-size:1.0em;width:100%;">
+                Recall 0.23<br>
+                <span style="font-size:0.72em;font-weight:600;">misses 3 in every 4 trees</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 6 — FINE-TUNING STRATEGY
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>FINE-TUNING STRATEGY: DOMAIN ADAPTATION WITH CONTROLLED LEARNING</h2>
+        </div>
+        <div class="slide-body" style="flex-direction:row;gap:20px;">
+          <div class="col-55" style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
+            <div class="box-blue" style="font-size:0.86em;">
+              <strong>DeepForest — RetinaNet + ResNet-50 backbone</strong><br>
+              Pre-trained on millions of US NEON forest images. Already knows tree crown shapes, scale variation, and overlapping detection (Focal Loss + FPN).
+            </div>
+            <div class="box-gold" style="font-size:0.86em;">
+              <strong>LR = 1×10<sup>−4</sup> — why so low?</strong><br>
+              High LR destroys the backbone weights before the head can learn — "Catastrophic Forgetting."
+              Low LR preserves what the backbone knows about trees while teaching it Dehesa soil and Seca morphology.
+            </div>
+            <div class="box-purple" style="font-size:0.86em;">
+              <strong>2-class head</strong> — original: 1 class ("Tree") → fine-tuned: "Healthy" + "Seca."
+              Head weights re-initialised. Backbone frozen for epoch 1.
+            </div>
+          </div>
+          <div class="col-45" style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
+            <table>
+              <thead><tr><th>Hyperparameter</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Learning rate</td><td><strong>1e-4</strong></td></tr>
+                <tr><td>Batch size</td><td><strong>4</strong> (RTX 3060, 12 GB)</td></tr>
+                <tr><td>Epochs</td><td><strong>30</strong></td></tr>
+                <tr><td>IOU threshold</td><td><strong>0.5</strong></td></tr>
+                <tr class="highlight-row"><td>Ablation LR</td><td><strong>1e-2</strong> (forgetting test)</td></tr>
+                <tr><td>Augmentation</td><td>Flip · Rotate · Color jitter</td></tr>
+                <tr><td>Focal loss α</td><td><strong>0.25</strong> (class imbalance)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 7 — ABLATION + METRICS TABLE
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>ABLATION STUDY: PROVING THAT LR MATTERS</h2>
+        </div>
+        <div class="slide-body" style="flex-direction:row;gap:18px;align-items:flex-start;">
+          <div style="flex:0 0 58%;text-align:center;">
+            <img src="../reports/ablation_lr_comparison.png" alt="Ablation LR comparison"
+              style="width:100%;border-radius:10px;height:390px;object-fit:contain;display:block;">
+            <p class="img-cap">F1 comparison: High LR (1e-2) vs Fine-Tuned LR (1e-4)</p>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding-top:4px;">
+            <table>
+              <thead>
+                <tr><th>Run</th><th>LR</th><th>Epochs</th><th>F1 Overall</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Zero-Shot Baseline</td><td>—</td><td>—</td><td class="drop-col">0.3200</td></tr>
+                <tr class="highlight-row">
+                  <td><strong>Ablation (high LR)</strong></td><td>1e-2</td><td>5</td>
+                  <td class="drop-col"><strong>0.0000</strong></td>
+                </tr>
+                <tr class="gpu-row">
+                  <td><strong>Fine-Tuned (low LR)</strong></td><td>1e-4</td><td>30</td>
+                  <td class="rise-col"><strong>0.6694</strong></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="box-red" style="font-size:0.81em;margin-top:4px;">
+              <strong>Catastrophic Forgetting confirmed:</strong> With LR=0.01, the model made
+              <strong>0 predictions</strong> across the entire val set after 5 epochs.
+              The backbone weights were overwritten before the head could learn Dehesa features.
+            </div>
+            <div class="box-gold" style="font-size:0.80em;">
+              <strong>Why this matters for the report:</strong> It shows we didn't just pick a random LR —
+              we empirically proved that Domain Adaptation requires a conservative update step.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 8 — RESULTS: METRICS
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>FINE-TUNING RESULTS: METRICS SUMMARY</h2>
+        </div>
+        <div class="slide-body" style="flex-direction:row;gap:18px;">
+          <div class="col-55" style="display:flex;flex-direction:column;gap:10px;">
+            <table>
+              <thead>
+                <tr><th>Metric</th><th>Baseline</th><th>Fine-Tuned</th><th>&#916;</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>F1 Overall</td>
+                  <td class="drop-col">0.320</td>
+                  <td class="rise-col">0.669</td>
+                  <td class="rise-col">+0.349</td>
+                </tr>
+                <tr>
+                  <td>F1 Healthy</td>
+                  <td class="drop-col">—</td>
+                  <td class="rise-col">0.914</td>
+                  <td class="rise-col">—</td>
+                </tr>
+                <tr class="highlight-row">
+                  <td><strong>F1 Seca (key)</strong></td>
+                  <td class="drop-col"><strong>0.000</strong></td>
+                  <td class="drop-col"><strong>0.000</strong></td>
+                  <td class="na-col"><strong>+0.000</strong></td>
+                </tr>
+                <tr>
+                  <td>Precision</td>
+                  <td class="drop-col">0.510</td>
+                  <td class="rise-col">0.610</td>
+                  <td class="rise-col">+0.100</td>
+                </tr>
+                <tr>
+                  <td>Recall</td>
+                  <td class="drop-col">0.230</td>
+                  <td class="rise-col">0.742</td>
+                  <td class="rise-col">+0.512</td>
+                </tr>
+                <tr>
+                  <td>Recall Seca</td>
+                  <td class="drop-col">—</td>
+                  <td class="drop-col">0.000</td>
+                  <td class="na-col">—</td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display:flex;gap:10px;margin-top:4px;">
+              <div class="metric-big" style="flex:1;background:#f0f6ff;border:2px solid #2166ac;">
+                <span class="val" style="color:#2166ac;">243</span>
+                <span class="lbl">train images</span>
+              </div>
+              <div class="metric-big" style="flex:1;background:#fff8f8;border:2px solid #c0392b;">
+                <span class="val" style="color:#c0392b;">892</span>
+                <span class="lbl">Seca examples<br>(12.1%)</span>
+              </div>
+              <div class="metric-big" style="flex:1;background:#f0fff4;border:2px solid #27ae60;">
+                <span class="val" style="color:#27ae60;">17</span>
+                <span class="lbl">val images<br>(62 Seca GT)</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-45" style="display:flex;flex-direction:column;gap:10px;justify-content:flex-start;">
+            <div class="box-green" style="font-size:0.82em;">
+              <strong>Overall F1 +34.9 pp &#10003;</strong><br>
+              Healthy trees: 91.4% F1, Recall 93.9%, Precision 88.9%.
+              The backbone successfully transferred NEON forest features to Spanish Dehesa.
+            </div>
+            <div class="box-red" style="font-size:0.82em;">
+              <strong>Seca F1 = 0.000 — class imbalance unsolved</strong><br>
+              6449 Healthy (87.9%) vs 892 Seca (12.1%) in training.
+              The model learned the dominant class perfectly but could not fire on Seca.
+              More annotated Seca examples needed.
+            </div>
+            <div class="box-gold" style="font-size:0.82em;">
+              <strong>Why F1-Seca is our target metric</strong><br>
+              In ecological monitoring, a False Negative on <em>La Seca</em> means a tree that
+              could have been treated is left to die. Recall on the minority class is the
+              operationally relevant metric for next steps.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 9 — LOSS CURVES
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>TRAINING DYNAMICS: CONVERGENCE WITHOUT OVERFITTING</h2>
+        </div>
+        <div class="slide-body" style="gap:10px;">
+          <!-- Image full-width on top -->
+          <div style="text-align:center;flex-shrink:0;">
+            <img src="../reports/loss_curves.png" alt="Loss curves"
+              style="width:100%;border-radius:10px;object-fit:contain;max-height:300px;display:block;">
+            <p class="img-cap" style="margin-top:3px;">30 epochs · RTX 3060 · LR = 1×10<sup>−4</sup> · Val loss: 1.817 → 0.708 (−61%)</p>
+          </div>
+          <!-- Three info boxes in a row below -->
+          <div style="display:flex;gap:14px;flex:1;min-height:0;align-items:flex-start;">
+            <div class="col box-blue" style="font-size:0.83em;">
+              <strong>What the curves confirm</strong><br>
+              Steep drop epochs 14–16: backbone adapts to Dehesa. Val loss tracks train — no overfitting. Still falling at epoch 30 → more epochs would help.
+            </div>
+            <div class="col box-red" style="font-size:0.83em;">
+              <strong>Why Seca F1 = 0.000 despite good loss</strong><br>
+              87.9% of training labels are Healthy. Gradient from 892 Seca examples is too weak to activate Seca predictions, even with Focal Loss.
+            </div>
+            <div class="col box-gold" style="font-size:0.83em;">
+              <strong>Conclusion → Phase 4</strong><br>
+              The detector learns <em>where</em> trees are (Recall 0.742) but cannot separate classes. Class separation requires the two-stage pipeline.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 10 — VISUAL COMPARISON
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>VISUAL COMPARISON: BASELINE vs FINE-TUNED PREDICTIONS</h2>
+        </div>
+        <div class="slide-body" style="flex-direction:row;gap:16px;">
+          <!-- Left: two images stacked -->
+          <div style="flex:0 0 62%;display:flex;flex-direction:column;gap:6px;">
+            <img src="../reports/visual_comparison_1.png" alt="Visual comparison 1"
+              style="width:100%;border-radius:8px;object-fit:contain;display:block;">
+            <p class="img-cap" style="text-align:left;">Tile 1 &nbsp;—&nbsp;
+              <span style="color:#888;font-weight:700;">■ GT</span> &nbsp;·&nbsp;
+              <span style="color:#ffaa00;font-weight:700;">■ Baseline</span> &nbsp;·&nbsp;
+              <span style="color:#00cc44;font-weight:700;">■ Healthy (fine-tuned)</span> &nbsp;·&nbsp;
+              <span style="color:#ff3333;font-weight:700;">■ Seca (fine-tuned)</span>
+            </p>
+            <img src="../reports/visual_comparison_2.png" alt="Visual comparison 2"
+              style="width:100%;border-radius:8px;object-fit:contain;display:block;">
+            <p class="img-cap" style="text-align:left;">Tile 2 &mdash; same legend</p>
+          </div>
+          <!-- Right: info column -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px;justify-content:center;">
+            <div class="box-blue" style="font-size:0.82em;">
+              <strong>What to look for</strong><br>
+              Each image shows 3 panels: Ground Truth · Baseline · Fine-Tuned.
+              Green boxes = Healthy. No Seca boxes in Phase 3 — the detector sees the full 800px tile and fires only on Healthy.
+            </div>
+            <div class="box-gold" style="font-size:0.82em;">
+              <strong>Why no Seca?</strong><br>
+              87.9% Healthy context overwhelms the gradient. Focal Loss was not enough.
+              Phase 4 fixes this by isolating 96px crops — removing the background noise.
+            </div>
+            <div class="box-green" style="font-size:0.82em;">
+              <strong>Progress vs baseline</strong><br>
+              Recall 0.23 → 0.742. Precision 0.51 → 0.61.
+              Localisation recovered. Class separation is the remaining problem.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 11 — FAILURE CASES
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>CRITICAL ANALYSIS: WHERE THE MODEL STILL FAILS</h2>
+        </div>
+        <div class="slide-body" style="gap:8px;">
+          <div style="display:flex;gap:12px;flex:1;min-height:0;">
+            <div style="flex:1;text-align:center;display:flex;flex-direction:column;gap:3px;">
+              <p style="font-weight:700;font-size:0.78em;color:#c0392b;margin:0;">FAILURE 1: Bright Sandy Background</p>
+              <img src="../reports/failure_case_1.png" alt="Failure 1"
+                style="width:100%;border-radius:8px;height:310px;object-fit:contain;display:block;">
+              <p class="img-cap"><strong>42% of GT boxes missed.</strong><br>
+                Sparse oaks on ochre soil — low contrast between crown and bright background confuses the anchor grid.</p>
+            </div>
+            <div style="flex:1;text-align:center;display:flex;flex-direction:column;gap:3px;">
+              <p style="font-weight:700;font-size:0.78em;color:#c0392b;margin:0;">FAILURE 2: High-Density Crown Overlap</p>
+              <img src="../reports/failure_case_2.png" alt="Failure 2"
+                style="width:100%;border-radius:8px;height:310px;object-fit:contain;display:block;">
+              <p class="img-cap"><strong>56% of GT boxes missed.</strong><br>
+                Dense canopy — crowns merge into a single connected region, breaking single-tree anchor assumptions.</p>
+            </div>
+            <div style="flex:1;text-align:center;display:flex;flex-direction:column;gap:3px;">
+              <p style="font-weight:700;font-size:0.78em;color:#c0392b;margin:0;">FAILURE 3: Mixed Shrubs &amp; Shadow</p>
+              <img src="../reports/failure_case_3.png" alt="Failure 3"
+                style="width:100%;border-radius:8px;height:310px;object-fit:contain;display:block;">
+              <p class="img-cap"><strong>54% of GT boxes missed.</strong><br>
+                Dense mixed vegetation with shadows — shrubs are confused with tree crowns; shadows shift confidence scores down.
+              </p>
+            </div>
+          </div>
+          <div class="two-col" style="gap:12px;">
+            <div class="col box-red" style="font-size:0.79em;">
+              <strong>Why these failures matter:</strong> All 3 failure modes are <em>systematic</em>,
+              not random noise. They represent distinct visual conditions that need targeted fixes.
+            </div>
+            <div class="col box-gold" style="font-size:0.79em;">
+              <strong>Fix paths:</strong> (1) bright soil → contrast augmentation, soil-aware normalisation;
+              (2) overlap → NMS tuning or instance segmentation;
+              (3) shadows/shrubs → near-infrared channel, time-of-day normalisation.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 11b — PHASE 4: TWO-STAGE RESULTS
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>PHASE 4 — TWO-STAGE APPROACH: SECA DETECTION SOLVED</h2>
+        </div>
+        <div class="slide-body" style="gap:8px;">
+          <!-- Key metric callout -->
+          <div style="display:flex;gap:12px;flex-shrink:0;align-items:center;">
+            <div class="callout-green" style="flex:1;font-size:1.1em;">
+              F1-Seca: <strong>0.000 &rarr; 0.354</strong> &nbsp;(+35.4 pp) &nbsp;·&nbsp; F1-Overall: 0.669 &rarr; <strong>0.712</strong>
+            </div>
+          </div>
+          <!-- Main content row -->
+          <div style="display:flex;gap:14px;flex:1;min-height:0;">
+            <!-- Left: architecture + table + why -->
+            <div style="flex:0 0 50%;display:flex;flex-direction:column;gap:8px;">
+              <div class="box-blue" style="font-size:0.82em;">
+                <strong>Architecture</strong><br>
+                <span style="font-family:monospace;font-size:0.93em;">
+                  Tile<br>
+                  &nbsp;↓ Stage 1 · DeepForest detector → N boxes<br>
+                  &nbsp;↓ Crop each box → 96×96 px patch<br>
+                  &nbsp;↓ Stage 2 · ResNet-18 → {Healthy, Seca}
+                </span>
+              </div>
+              <table style="font-size:0.80em;">
+                <thead><tr><th>Metric</th><th>Phase 3</th><th>Phase 4</th><th>Δ</th></tr></thead>
+                <tbody>
+                  <tr><td>F1 Overall</td><td>0.669</td><td class="rise-col"><strong>0.712</strong></td><td class="rise-col">+0.043</td></tr>
+                  <tr><td>F1 Healthy</td><td>0.914</td><td>0.761</td><td class="drop-col">−0.153</td></tr>
+                  <tr class="highlight-row">
+                    <td><strong>F1 Seca</strong></td>
+                    <td class="drop-col"><strong>0.000</strong></td>
+                    <td class="rise-col"><strong>0.354</strong></td>
+                    <td class="rise-col"><strong>+35.4 pp</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="box-gold" style="font-size:0.80em;">
+                <strong>Why it worked:</strong> The 96px crop removes all background noise.
+                <code>WeightedRandomSampler</code> + class-weighted loss lets ResNet-18 learn
+                Seca from 892 crops — what Phase 3 could never do from the full tile.
+              </div>
+            </div>
+            <!-- Right: training curves (wide) + confusion matrix (square) -->
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+              <img src="../reports/stage2_training_curves.png" alt="Stage 2 training curves"
+                style="width:100%;border-radius:8px;object-fit:contain;display:block;max-height:195px;">
+              <img src="../reports/stage2_confusion_matrix.png" alt="Stage 2 confusion matrix"
+                style="width:100%;border-radius:8px;object-fit:contain;display:block;flex:1;min-height:0;">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 11c — PHASE 5: END-TO-END PIPELINE
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>PHASE 5 — TRUE END-TO-END EVALUATION</h2>
+        </div>
+        <div class="slide-body" style="gap:10px;">
+          <!-- Top: description + table + why -->
+          <div style="display:flex;gap:14px;flex-shrink:0;align-items:flex-start;">
+            <div style="flex:1;">
+              <div class="box-blue" style="font-size:0.82em;">
+                <strong>What Phase 4 couldn't tell us:</strong> Stage 2 scored on <em>perfect GT crops</em> — the detector was bypassed.
+                Phase 5 uses a dedicated <strong>1-class "Tree" detector</strong>, then runs the full pipeline:
+                Stage 1 boxes → Stage 2 crop classifier → IoU ≥ 0.4 match vs GT.
+              </div>
+            </div>
+            <div style="flex:0 0 42%;display:flex;flex-direction:column;gap:8px;">
+              <table style="font-size:0.80em;">
+                <thead>
+                  <tr><th>Metric</th><th>Ph4 crop-level</th><th>Ph5 end-to-end</th><th>&#916;</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>F1 Overall</td><td>0.712</td><td>0.636</td><td class="drop-col">−0.076</td></tr>
+                  <tr><td>F1 Healthy</td><td>0.761</td><td>0.676</td><td class="drop-col">−0.085</td></tr>
+                  <tr class="highlight-row">
+                    <td><strong>F1 Seca</strong></td><td>0.354</td><td><strong>0.346</strong></td><td>−0.008</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="box-gold" style="font-size:0.79em;">
+                The −0.008 drop is the <em>localisation tax</em> — the real cost of Stage 1 missing or misplacing some trees.
+                1-class Stage 1 decouples <em>where</em> from <em>what</em>, preventing the Seca collapse seen in Phase 3.
+              </div>
+            </div>
+          </div>
+          <!-- Bottom: 3 pipeline result images side by side -->
+          <div style="display:flex;gap:8px;flex:1;min-height:0;">
+            <img src="../reports/pipeline_result_1.png" alt="Pipeline result tile 1"
+              style="flex:1;min-width:0;width:0;height:100%;object-fit:cover;border-radius:8px;display:block;">
+            <img src="../reports/pipeline_result_2.png" alt="Pipeline result tile 2"
+              style="flex:1;min-width:0;width:0;height:100%;object-fit:cover;border-radius:8px;display:block;">
+            <img src="../reports/pipeline_result_3.png" alt="Pipeline result tile 3"
+              style="flex:1;min-width:0;width:0;height:100%;object-fit:cover;border-radius:8px;display:block;">
+          </div>
+          <p class="img-cap" style="flex-shrink:0;">
+            End-to-end output on 3 test tiles &nbsp;·&nbsp;
+            <span style="color:#27ae60;font-weight:700;">■ Healthy (predicted)</span> &nbsp;
+            <span style="color:#c0392b;font-weight:700;">■ Seca (predicted)</span> &nbsp;
+            <span style="color:#888;font-weight:700;">- - GT boxes</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 12 — CONCLUSION
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>CONCLUSION &amp; DEPLOYMENT VISION</h2>
+        </div>
+        <div class="slide-body" style="flex-direction:row;gap:20px;">
+          <div class="col" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="box-green" style="font-size:0.84em;">
+              <p class="big-green" style="margin-bottom:8px;">&#10003; What we proved</p>
+              <ul>
+                <li>Domain gap between NEON and Dehesa is <strong>statistically real</strong> (KS D=0.86)</li>
+                <li>Phase 3: fine-tuning raised F1 from 0.32 &rarr; <strong>0.669 (+34.9 pp)</strong></li>
+                <li>Phase 4: 2-stage approach broke the Seca barrier — F1-Seca <strong>0.000 &rarr; 0.354 (+35.4 pp)</strong> on GT crops</li>
+                <li>Phase 5: true end-to-end pipeline — F1-Seca <strong>0.346</strong> on raw tiles; only −0.008 drop vs crop-level, confirming the classifier generalises under real detection noise</li>
+                <li>Ablation confirms <strong>low LR is necessary</strong> — empirically, not just theoretically</li>
+                <li>Both models public on HuggingFace (<code>sillescas/deepforest-dehesa-quercus</code>)</li>
+              </ul>
+            </div>
+            <div class="box-red" style="font-size:0.84em;">
+              <p class="cross" style="margin-bottom:6px;">&#10007; Remaining limitations</p>
+              <ul>
+                <li>F1-Seca 0.354 — good start, needs more Seca annotations to exceed 0.60</li>
+                <li>3 systematic failure modes: shadow, scale variation, crown overlap</li>
+                <li>RGB only — NIR/SWIR spectral bands would dramatically improve Seca recall</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="box-blue" style="font-size:0.84em;">
+              <strong>Deployment vision</strong><br>
+              A regional government forester uploads last summer's Google Earth tiles.
+              The model returns a ranked list of GPS locations where <em>La Seca</em>
+              is likely. Inspectors prioritise those areas. Treatment applied before
+              the tree is lost.
+              <br><br>
+              <span class="note">Scale: 5M hectares = ~78,000 tiles of 800px. At ~2 seconds/tile on GPU,
+              a full scan takes under 45 hours — annually.</span>
+            </div>
+            <table style="font-size:0.79em;">
+              <thead><tr><th>Phase</th><th>Status</th><th>F1</th></tr></thead>
+              <tbody>
+                <tr><td>1 — Capture + explore</td><td>&#10003; Done</td><td>—</td></tr>
+                <tr><td>2 — Zero-Shot Baseline</td><td>&#10003; Done</td><td>0.32 (0.53 tuned)</td></tr>
+                <tr><td>2b — Pre-annotation</td><td>&#10003; Done</td><td>—</td></tr>
+                <tr>
+                  <td>3 — Fine-Tuning (GPU)</td>
+                  <td>&#10003; Done</td><td>0.669 overall</td></tr>
+                <tr>
+                  <td><strong>4 — Two-Stage (GPU)</strong></td>
+                  <td><strong>&#10003; Done</strong></td><td><strong>F1-Seca 0.354 (crops)</strong></td></tr>
+                <tr class="highlight-row">
+                  <td><strong>5 — End-to-End pipeline</strong></td>
+                  <td><strong>&#10003; Done</strong></td><td><strong>F1-Seca 0.346 (e2e)</strong></td></tr>
+                <tr><td>6 — More data + NIR</td><td>Future</td><td>&gt; 0.60 Seca</td></tr>
+              </tbody>
+            </table>
+            <div class="callout-conclusion" style="font-size:0.82em;">
+              The tooling is real. The pipeline works. The forest is waiting.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           SLIDE 13 — REFERENCES
+      ══════════════════════════════════ -->
+      <section>
+        <div class="slide-top">
+          <h2>REFERENCES</h2>
+        </div>
+        <div class="slide-body" style="justify-content:center;gap:8px;">
+          <ol style="font-size:0.86em;line-height:2.1;margin:0;">
+            <li>
+              <strong>Weinstein et al. (2020)</strong> — DeepForest: A Python Package for RGB Deep Learning Tree Crown Delineation.
+              <em>Methods in Ecology and Evolution.</em>
+              <a href="https://deepforest.readthedocs.io/" style="color:#2166ac;">deepforest.readthedocs.io</a>
+            </li>
+            <li>
+              <strong>Lin et al. (2017)</strong> — Focal Loss for Dense Object Detection (RetinaNet).
+              <em>ICCV 2017.</em>
+              arXiv:1708.02002
+            </li>
+            <li>
+              <strong>NEON Data Portal</strong> — RGB Aerial Imagery (DP3.30010.001).
+              <a href="https://data.neonscience.org/data-products/DP3.30010.001" style="color:#2166ac;">data.neonscience.org</a>
+            </li>
+            <li>
+              <strong>NeonTreeEvaluation Benchmark</strong> — Weinstein et al. Ground truth for aerial tree detection.
+              <a href="https://github.com/weecology/NeonTreeEvaluation" style="color:#2166ac;">github.com/weecology/NeonTreeEvaluation</a>
+            </li>
+            <li>
+              <strong>Roboflow</strong> — Annotation Platform &amp; Dataset Management.
+              <a href="https://roboflow.com/" style="color:#2166ac;">roboflow.com</a>
+            </li>
+            <li>
+              <strong>Junta de Extremadura</strong> — <em>La Seca</em> monitoring reports, Extremadura Regional Government.
+              Reference for ecological impact statistics.
+            </li>
+          </ol>
+          <div class="pillar-bar" style="margin-top:14px;width:80%;">
+            <span>DeepForest v2.1</span>
+            <span>Roboflow VOC</span>
+            <span>PyTorch Lightning</span>
+            <span>RetinaNet</span>
+            <span>Google Earth</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      transition: 'none',
+      controls: true,
+      progress: true,
+      hash: true,
+      slideNumber: true,
+      width: 1100,
+      height: 700,
+      margin: 0.04
+    });
+  </script>
+</body>
+
+</html>
